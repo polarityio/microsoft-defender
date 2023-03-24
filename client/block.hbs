@@ -1,0 +1,263 @@
+<ul class="nav nav-tabs">
+  {{#if (get details "indicators" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "indicators"}}
+        class="nav-link {{if (eq activeTab "indicators") "active"}}"
+        href="#"
+      >
+        {{get displayTabNames "indicators"}}
+      </a>
+    </li>
+  {{/if}}
+  {{#if (get details "incidents" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "incidents"}}
+        class="nav-link {{if (eq activeTab "incidents") "active"}}"
+        href="#"
+      >
+        {{get displayTabNames "incidents"}}
+      </a>
+    </li>
+  {{/if}}
+  {{#if (get details "ipGeodata" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "ipGeodata"}}
+        class="nav-link {{if (eq activeTab "ipGeodata") "active"}}"
+        href="#"
+      >
+        {{get displayTabNames "ipGeodata"}}
+      </a>
+    </li>
+  {{/if}}
+  {{#if (get details "domainWhois" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "domainWhois"}}
+        class="nav-link {{if (eq activeTab "domainWhois") "active"}}"
+        href="#"
+      >
+        {{get displayTabNames "domainWhois"}}
+      </a>
+    </li>
+  {{/if}}
+  {{#if (get details "kustoQueryResults" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "kustoQueryResults"}}
+        class="nav-link {{if (eq activeTab "kustoQueryResults") "active"}}"
+        href="#"
+      >
+        {{get displayTabNames "kustoQueryResults"}}
+      </a>
+    </li>
+  {{/if}}
+</ul>
+
+{{#if (eq activeTab "incidents")}}
+  <br />
+  {{#each details.incidents as |incident index|}}
+    <div>
+      {{#if (get (get expandableTitleStates "incidents") index)}}
+        <a
+          href="#"
+          class="expandable-title"
+          {{on "click" (action "toggleExpandableTitle" index "incidents")}}
+        >
+          <span class="text">{{incident.properties.title}}
+            (ID:
+            {{incident.properties.incidentNumber}})</span>
+          {{fa-icon icon="angle-up"}}
+        </a>
+        <div class="incident-content">
+          {{#if incident.properties.incidentUrl}}
+            <div class="p-title">
+              <a class="p-link" href={{incident.properties.incidentUrl}}>
+                View Incident in Sentinel
+                {{fa-icon icon="external-link-square" class="external-link-icon"}}
+              </a>
+            </div>
+          {{/if}}
+          {{#if incident.properties.description}}
+            <div>
+              <span class="p-key">Description: </span>
+              <pre class="p-value">{{incident.properties.description}}</pre>
+            </div>
+          {{/if}}
+          {{#if incident.properties.incidentNumber}}
+            <div>
+              <span class="p-key">Incident ID: </span>
+              <span class="p-value">{{incident.properties.incidentNumber}}</span>
+            </div>
+          {{/if}}
+          {{#if incident.properties.status}}
+            <div>
+              <span class="p-key">Status: </span>
+              <span class="p-value">{{incident.properties.status}}</span>
+            </div>
+          {{/if}}
+          {{#if incident.properties.severity}}
+            <div>
+              <span class="p-key">Severity: </span>
+              <span class="p-value">{{incident.properties.severity}}</span>
+            </div>
+          {{/if}}
+          {{#if incident.properties.owner.assignedTo}}
+            <div>
+              <span class="p-key">Owner: </span>
+              <span class="p-value">{{incident.properties.owner.assignedTo}}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              incident.properties.additionalData.alertCount
+              (eq incident.properties.additionalData.alertCount 0)
+            )
+          }}
+            <div>
+              <span class="p-key"># of Alerts: </span>
+              <span
+                class="p-value"
+              >{{incident.properties.additionalData.alertCount}}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              incident.properties.additionalData.bookmarksCount
+              (eq incident.properties.additionalData.bookmarksCount 0)
+            )
+          }}
+            <div>
+              <span class="p-key"># of Bookmarks: </span>
+              <span
+                class="p-value"
+              >{{incident.properties.additionalData.bookmarksCount}}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              incident.properties.additionalData.commentsCount
+              (eq incident.properties.additionalData.commentsCount 0)
+            )
+          }}
+            <div>
+              <span class="p-key"># of Comments: </span>
+              <span
+                class="p-value"
+              >{{incident.properties.additionalData.commentsCount}}</span>
+            </div>
+          {{/if}}
+          {{#if incident.properties.lastActivityTimeUtc}}
+            <div>
+              <span class="p-key">Last Update Time: </span>
+              <span class="p-value">{{moment-format
+                  incident.properties.lastActivityTimeUtc
+                  "MM/DD/YYYY HH:mm:ss"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if incident.properties.createdTimeUtc}}
+            <div>
+              <span class="p-key">Creation Time: </span>
+              <span class="p-value">{{moment-format
+                  incident.properties.createdTimeUtc
+                  "MM/DD/YYYY HH:mm:ss"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          <div class="tag-container">
+            <h1 class="p-title">
+              {{fa-icon icon="tags" fixedWidth=true}}
+              Tags
+            </h1>
+            {{#if (eq incident.properties.labels.length 0)}}
+              <span class="p-footnote mb-2 mt-2">
+                <span><em>&nbsp; No Incident Tags Found &nbsp;</em></span>
+              </span>
+            {{else}}
+              {{#each (take 20 incident.properties.labels) as |label|}}
+                <span class="tag link-tag d-inline-flex align-items-center">
+                  <span class="text-container summary-source">
+                    {{label.labelName}}
+                  </span>
+                </span>
+              {{/each}}
+            {{/if}}
+          </div>
+        </div>
+      {{else}}
+        <a
+          href="#"
+          class="expandable-title"
+          {{on "click" (action "toggleExpandableTitle" index "incidents")}}
+        >
+          <span class="text">{{incident.properties.title}}
+            (ID:
+            {{incident.properties.incidentNumber}})</span>
+          {{fa-icon icon="angle-down"}}
+        </a>
+      {{/if}}
+    </div>
+  {{/each}}
+{{/if}}
+
+{{#if (eq activeTab "kustoQueryResults")}}
+  <br />
+  {{#each details.kustoQueryResults as |kustoQueryResult index|}}
+    <div>
+      {{#if (get (get expandableTitleStates "kustoQueryResults") index)}}
+        <a
+          href="#"
+          class="expandable-title"
+          {{on "click" (action "toggleExpandableTitle" index "kustoQueryResults")}}
+        >
+          <span class="text">Table
+            {{inc index}}:
+            <em>{{titleize (humanize (dasherize kustoQueryResult.tableName))}}</em></span>
+          {{fa-icon icon="angle-up"}}
+        </a>
+        <div class="table-content">
+          {{#each kustoQueryResult.tableFields as |displayField|}}
+            {{#if
+              (or
+                displayField.value (eq displayField.value false) (eq displayField.value 0)
+              )
+            }}
+              <div>
+                <span class="p-key">{{displayField.name}}: </span>
+                <span class="p-value break-all">
+                  {{#if (eq displayField.type "datetime")}}
+                    {{moment-format
+                      displayField.value
+                      "MM/DD/YYYY HH:mm:ss"
+                      timeZone=timezone
+                    }}
+                  {{else}}
+                    {{displayField.value}}
+                  {{/if}}
+                </span>
+              </div>
+            {{else if (eq displayField.type "endOfRow")}}
+              <hr />
+            {{/if}}
+          {{/each}}
+        </div>
+      {{else}}
+        <a
+          href="#"
+          class="expandable-title"
+          {{on "click" (action "toggleExpandableTitle" index "kustoQueryResults")}}
+        >
+          <span class="text">Table
+            {{inc index}}:
+            <em>{{titleize (humanize (dasherize kustoQueryResult.tableName))}}</em></span>
+          {{fa-icon icon="angle-down"}}
+        </a>
+      {{/if}}
+    </div>
+  {{/each}}
+{{/if}}

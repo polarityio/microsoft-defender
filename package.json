@@ -1,0 +1,15 @@
+{
+  "main": "./integration.js",
+  "name": "microsoft-defender",
+  "version": "3.0.0-beta",
+  "private": true,
+  "license": "MIT",
+  "author": "Polarity",
+  "dependencies": {
+    "@azure/msal-node": "^1.16.0",
+    "async": "^3.2.4",
+    "lodash": "^4.17.21",
+    "node-cache": "^5.1.2",
+    "postman-request": "^2.88.1-postman.31"
+  }
+}
