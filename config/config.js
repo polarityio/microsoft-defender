@@ -1,11 +1,10 @@
 module.exports = {
   name: 'Microsoft Defender',
   acronym: 'MS-DEF',
-  description:
-    'TODO',
-  entityTypes: ['domain', 'IPv4', 'email', 'hash', 'cve'], //TODO
-  styles: ['./client/styles.less'],
+  description: 'TODO',
+  entityTypes: ['*'],
   defaultColor: 'light-blue',
+  styles: ['./client/styles.less'],
   block: {
     component: {
       file: './client/block.js'
@@ -23,7 +22,7 @@ module.exports = {
     rejectUnauthorized: true
   },
   logging: {
-    level: 'info' //trace, debug, info, warn, error, fatal
+    level: 'trace' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
@@ -58,10 +57,10 @@ module.exports = {
     },
     {
       key: 'kustoQueryString',
-      name: 'Kusto Query String',
+      name: 'Advanced Threat Hunting Kusto Query String',
       description:
-        'Kusto Query String to execute on the 365 Defender Log Analytics Workspace. The string `{{ENTITY}}` will be replace by the looked up Entity. For example: ThreatIntelligenceIndicator | search "{{ENTITY}}" | take 10',
-      default: 'ThreatIntelligenceIndicator | search "{{ENTITY}}" | take 10',
+        'Kusto Query String to execute for Advanced Threat Hunting. All available tables include AlertInfo, AlertEvidence, IdentityInfo, EmailAttachmentInfo, EmailUrlInfo, EmailPostDeliveryEvents, & UrlClickEvents. Example: "union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(1000d) | take 10"',
+      default: 'union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(60d)| take 10',
       type: 'text',
       userCanEdit: false,
       adminOnly: false
@@ -80,20 +79,66 @@ module.exports = {
       key: 'kustoQueryIgnoreFields',
       name: 'Kusto Query Ignore Fields',
       description:
-        'Comma delimited list of Fields to ignore from the Kusto Query Results in the Overlay. This option must be set to "User can view and edit" or "User can view only".',
+        'Comma delimited list of Fields to not show from the Kusto Query Results in the Overlay. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: true,
       adminOnly: false
     },
     {
-      key: 'lookbackDays',
-      name: 'Lookback Days',
-      description: 'The number of days to look back when querying logs, and incidents.',
-      default: 30,
+      key: 'ignoreClassifications',
+      name: 'Ignore Classifications',
+      description: 'Comma delimited list of Classifications that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'ignoreDeterminations',
+      name: 'Ignore Determinations',
+      description: 'Comma delimited list of Determinations that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'ignoreSeverities',
+      name: 'Ignore Severities',
+      description: 'Comma delimited list of Severities that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'ignoreStatuses',
+      name: 'Ignore Statuses',
+      description: 'Comma delimited list of Statuses that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'ignoreServiceSources',
+      name: 'Ignore Service Sources',
+      description: 'Comma delimited list of Service Sources that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'createdLookbackDays',
+      name: 'Created On Lookback Days',
+      description: 'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
+      type: 'text',
+      default: 60,
       type: 'number',
       userCanEdit: false,
-      adminOnly: false
+      adminOnly: true
     }
   ]
 };

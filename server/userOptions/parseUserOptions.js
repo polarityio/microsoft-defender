@@ -1,10 +1,31 @@
-const { map, get, flow, __ } = require('lodash/fp');
+const { splitCommaSeparatedUserOption } = require('./utils');
 
 const parseUserOptions = (options) => {
-  // TODO
+  const parsedIgnoreClassifications = splitCommaSeparatedUserOption(
+    'ignoreClassifications',
+    options
+  );
+  const parsedIgnoreDeterminations = splitCommaSeparatedUserOption(
+    'ignoreDeterminations',
+    options
+  );
+  const parsedIgnoreSeverities = splitCommaSeparatedUserOption(
+    'ignoreSeverities',
+    options
+  );
+  const parsedIgnoreStatuses = splitCommaSeparatedUserOption('ignoreStatuses', options);
+  const parsedIgnoreServiceSources = splitCommaSeparatedUserOption(
+    'ignoreServiceSources',
+    options
+  );
 
   return {
-    ...options
+    ...options,
+    parsedIgnoreClassifications,
+    parsedIgnoreDeterminations,
+    parsedIgnoreSeverities,
+    parsedIgnoreStatuses,
+    parsedIgnoreServiceSources
   };
 };
 

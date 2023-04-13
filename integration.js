@@ -20,16 +20,18 @@ const doLookup = async (entities, userOptions, cb) => {
 
     const options = parseUserOptions(userOptions);
 
-    // TODO
-    const { } = await searchEntities(
+    const { alerts, incidents, kustoQueryResults } = await searchEntities(
       searchableEntities,
       options
     );
 
-    Logger.trace({ });
-    
+    Logger.trace({ alerts, incidents, kustoQueryResults });
+
     const lookupResults = assembleLookupResults(
       entities,
+      alerts,
+      incidents,
+      kustoQueryResults,
       options
     );
 
@@ -44,7 +46,6 @@ const doLookup = async (entities, userOptions, cb) => {
     cb({ detail: error.message || 'Lookup Failed', err });
   }
 };
-
 
 module.exports = {
   startup: setLogger,

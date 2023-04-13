@@ -77,8 +77,7 @@ const createRequestWithDefaults = () => {
       options: '{...}',
       headers: {
         ...requestOptions.headers,
-        // TODO
-        'x-api-key': '***'
+        Authorization: 'Bearer ***********'
       }
     };
 
@@ -92,17 +91,17 @@ const createRequestWithDefaults = () => {
     const roundedStatus = Math.round(statusCode / 100) * 100;
     const statusCodeNotSuccessful =
       !SUCCESSFUL_ROUNDED_REQUEST_STATUS_CODES.includes(roundedStatus);
-    const responseBodyErrors = get('errors.0', body);
+    const responseBodyError = get('error', body);
 
-    if (statusCodeNotSuccessful || responseBodyErrors) {
+    if (statusCodeNotSuccessful || responseBodyError) {
       const requestError = Error(
         `Request Error${
-          responseBodyErrors.message ? ` -> ${responseBodyErrors.message}` : ''
+          get('message', responseBodyError) ? ` -> ${get('message', responseBodyError)}` : ''
         }`
       );
       requestError.status = statusCodeNotSuccessful
         ? statusCode
-        : get('extensions.code', responseBodyErrors);
+        : get('code', responseBodyError);
       requestError.detail = get(get('error', body), ERROR_MESSAGES);
       requestError.description = JSON.stringify(body);
       requestError.requestOptions = JSON.stringify(requestOptionsWithoutSensitiveData);
@@ -110,6 +109,7 @@ const createRequestWithDefaults = () => {
     }
   };
 
+  //TODO Add limiter
   const requestDefaultsWithInterceptors = requestWithDefaultsBuilder(authenticateRequest);
 
   return requestDefaultsWithInterceptors;
