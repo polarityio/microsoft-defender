@@ -8,6 +8,7 @@
   "dependencies": {
     "@azure/msal-node": "^1.16.0",
     "async": "^3.2.4",
+    "bottleneck": "^2.19.5",
     "lodash": "^4.17.21",
     "luxon": "^3.3.0",
     "node-cache": "^5.1.2",
