@@ -16,10 +16,74 @@ const getKustoAdvancedThreatHuntingResults = async (entities, options) =>
               escapeQuotes(entity.value),
               options.kustoQueryString
             )
-          }
+          },
+          options
         })),
         async (advancedThreatHuntingKustoQueryRequests) =>
-          await requestsInParallel(advancedThreatHuntingKustoQueryRequests, 'body')
+          map(
+            (request) => ({
+              entity: request.entity,
+              result: [
+                {
+                  schema: [
+                    {
+                      Name: 'Timestamp',
+                      Type: 'DateTime'
+                    },
+                    {
+                      Name: 'FileName',
+                      Type: 'String'
+                    },
+                    {
+                      Name: 'InitiatingProcessFileName',
+                      Type: 'String'
+                    }
+                  ],
+                  results: [
+                    {
+                      Timestamp: '2020-08-30T06:38:35.7664356Z',
+                      FileName: 'conhost.exe',
+                      InitiatingProcessFileName: 'powershell.exe'
+                    },
+                    {
+                      Timestamp: '2020-08-30T06:38:30.5163363Z',
+                      FileName: 'conhost.exe',
+                      InitiatingProcessFileName: 'powershell.exe'
+                    }
+                  ]
+                },
+                {
+                  schema: [
+                    {
+                      Name: 'Timestamp',
+                      Type: 'DateTime'
+                    },
+                    {
+                      Name: 'FileName',
+                      Type: 'String'
+                    },
+                    {
+                      Name: 'InitiatingProcessFileName',
+                      Type: 'String'
+                    }
+                  ],
+                  results: [
+                    {
+                      Timestamp: '2020-08-30T06:38:35.7664356Z',
+                      FileName: 'conhost.exe',
+                      InitiatingProcessFileName: 'powershell.exe'
+                    },
+                    {
+                      Timestamp: '2020-08-30T06:38:30.5163363Z',
+                      FileName: 'conhost.exe',
+                      InitiatingProcessFileName: 'powershell.exe'
+                    }
+                  ]
+                }
+              ]
+            }),
+            advancedThreatHuntingKustoQueryRequests
+          ) //          await requestsInParallel(advancedThreatHuntingKustoQueryRequests, 'body')
       )(entities)
     : [];
 

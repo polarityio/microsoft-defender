@@ -1,7 +1,7 @@
 module.exports = {
   name: 'Microsoft Defender',
   acronym: 'MS-DEF',
-  description: 'TODO',
+  description: 'Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries',
   entityTypes: ['*'],
   defaultColor: 'light-blue',
   styles: ['./client/styles.less'],
@@ -22,7 +22,7 @@ module.exports = {
     rejectUnauthorized: true
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
@@ -67,7 +67,7 @@ module.exports = {
     },
     {
       key: 'kustoQuerySummaryFields',
-      name: 'Kusto Query Summary Fields',
+      name: 'Advanced Threat Hunting Summary Fields',
       description:
         'Comma delimited list of field values to include as part of the summary.  These fields must be returned by your Kusto Query. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
@@ -77,9 +77,9 @@ module.exports = {
     },
     {
       key: 'kustoQueryIgnoreFields',
-      name: 'Kusto Query Ignore Fields',
+      name: 'Advanced Threat Hunting Ignore Fields',
       description:
-        'Comma delimited list of Fields to not show from the Kusto Query Results in the Overlay. This option must be set to "User can view and edit" or "User can view only".',
+        'Comma delimited list of Fields to not show from the Advanced Threat Hunting Results in the Overlay. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: true,
