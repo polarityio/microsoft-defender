@@ -1,4 +1,5 @@
 {
+  "polarityIntegrationUuid": "a62b5600-de19-11ed-b27b-f9e5ad3171ca",
   "name": "Microsoft Defender",
   "acronym": "MS-DEF",
   "description": "Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries",
