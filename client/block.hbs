@@ -800,14 +800,14 @@
           {{fa-icon icon="angle-up"}}
         </a>
         <div class="table-content">
-          {{#each kustoQueryResult.tableFields as |displayField|}}
+          {{#each kustoQueryResult.tableRowFields as |displayField|}}
             {{#if
               (or
                 displayField.value (eq displayField.value false) (eq displayField.value 0)
               )
             }}
               <div>
-                <span class="p-key">{{displayField.name}}: </span>
+                <span class="p-key">{{titleize (humanize (dasherize displayField.name))}}: </span>
                 <span class="p-value break-all">
                   {{#if (eq displayField.type "datetime")}}
                     {{moment-format

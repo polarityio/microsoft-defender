@@ -1,12 +1,13 @@
 const fs = require('fs');
 
 const request = require('postman-request');
-const { get } = require('lodash/fp');
+const { get, isEmpty, getOr } = require('lodash/fp');
 const Bottleneck = require('bottleneck/es5');
 
 const { ERROR_MESSAGES } = require('../constants');
 const authenticateRequest = require('./authenticateRequest');
 const { getLogger } = require('../logging');
+const { parseErrorToReadableJson } = require('../dataTransformations');
 
 
 const _configFieldIsValid = (field) => typeof field === 'string' && field.length > 0;
@@ -78,7 +79,7 @@ const createRequestWithDefaults = () => {
             _requestOptions
           );
         } catch (_error) {
-          const err = parseErrorToReadableJSON(_error);
+          const err = parseErrorToReadableJson(_error);
           _error.maxRequestQueueLimitHit =
             (isEmpty(err) && isEmpty(result)) ||
             (err && err.message === 'This job has been dropped by Bottleneck');

@@ -1,32 +1,30 @@
+const { map, replace } = require('lodash/fp');
 const { splitCommaSeparatedUserOption } = require('./utils');
 
-const parseUserOptions = (options) => {
-  const parsedIgnoreClassifications = splitCommaSeparatedUserOption(
+const parseUserOptions = (options) => ({
+  ...options,
+  parsedIgnoreClassifications: splitCommaSeparatedUserOption(
     'ignoreClassifications',
     options
-  );
-  const parsedIgnoreDeterminations = splitCommaSeparatedUserOption(
+  ),
+  parsedIgnoreDeterminations: splitCommaSeparatedUserOption(
     'ignoreDeterminations',
     options
-  );
-  const parsedIgnoreSeverities = splitCommaSeparatedUserOption(
-    'ignoreSeverities',
-    options
-  );
-  const parsedIgnoreStatuses = splitCommaSeparatedUserOption('ignoreStatuses', options);
-  const parsedIgnoreServiceSources = splitCommaSeparatedUserOption(
+  ),
+  parsedIgnoreSeverities: splitCommaSeparatedUserOption('ignoreSeverities', options),
+  parsedIgnoreStatuses: splitCommaSeparatedUserOption('ignoreStatuses', options),
+  parsedIgnoreServiceSources: splitCommaSeparatedUserOption(
     'ignoreServiceSources',
     options
-  );
-
-  return {
-    ...options,
-    parsedIgnoreClassifications,
-    parsedIgnoreDeterminations,
-    parsedIgnoreSeverities,
-    parsedIgnoreStatuses,
-    parsedIgnoreServiceSources
-  };
-};
+  ),
+  parsedKustoQuerySummaryFields: map(
+    replace(/\s/g, ''),
+    splitCommaSeparatedUserOption('kustoQuerySummaryFields', options)
+  ),
+  parsedKustoQueryIgnoreFields: map(
+    replace(/\s/g, ''),
+    splitCommaSeparatedUserOption('kustoQueryIgnoreFields', options)
+  )
+});
 
 module.exports = parseUserOptions;

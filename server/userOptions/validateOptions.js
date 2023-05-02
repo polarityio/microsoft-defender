@@ -25,7 +25,6 @@ const validateOptions = async (options, callback) => {
     : [];
 
   let errors = stringValidationErrors.concat(authenticationError);
-  getLogger().trace({ stringValidationErrors, authenticationError });
 
   const filterOptionErrors = !size(errors)
     ? flatten(

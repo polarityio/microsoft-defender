@@ -24,6 +24,7 @@ polarity.export = PolarityComponent.extend({
         : 'kustoQueryResults'
     );
 
+    console.log({asdf:this.get('details.kustoQueryResults')})
     this._super(...arguments);
   },
   actions: {
@@ -31,6 +32,7 @@ polarity.export = PolarityComponent.extend({
       this.set('activeTab', tabName);
     },
     toggleExpandableTitle: function (index, type) {
+      console.log({asdf:this.get('details.kustoQueryResults')})
       this.set(
         `expandableTitleStates`,
         Object.assign({}, this.get('expandableTitleStates'), {

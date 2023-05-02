@@ -6,14 +6,25 @@ const {
   eq,
   map,
   some,
-  keys,
   filter,
-  assign,
   flatMap,
   concat,
   __,
-  toLower
+  toLower,
+  reduce,
+  includes,
+  negate,
+  flatten,
+  groupBy,
+  entries,
+  take,
+  uniq,
+  compact,
+  replace,
+  join
 } = require('lodash/fp');
+const { getLogger } = require('./logging');
+const { and } = require('./dataTransformations');
 
 const assembleLookupResults = (entities, alerts, incidents, kustoQueryResults, options) =>
   map((entity) => {
@@ -50,48 +61,54 @@ const getResultsForThisEntity = (
   kustoQueryResults,
   options
 ) => {
+  getLogger().trace({ test: 222222222, asdf: isIgnored(options) });
   return {
     alerts: getResultForThisEntity(entity, alerts),
     incidents: getResultForThisEntity(entity, incidents),
-    kustoQueryResults: getKustoQueryResults(entity, kustoQueryResults)
+    kustoQueryResults: getKustoQueryResults(entity, kustoQueryResults, options)
   };
 };
 
-const getKustoQueryResults = (entity, kustoQueryResults) => {
-  const queryResultsForThisEntity = getResultForThisEntity(entity, kustoQueryResults);
-  const resultsWithContent = filter(
-    flow(get('results'), size),
-    queryResultsForThisEntity
-  );
+const getKustoQueryResults = (entity, kustoQueryResults, options) => {
+  const {
+    schema,
+    results: tableRows,
+    ...remaining
+  } = getResultForThisEntity(entity, kustoQueryResults) || {};
 
-  const resultsWithTableFields = map(
-    (queryResult) => ({ ...queryResult, tableFields: getTableFields(queryResult) }),
-    resultsWithContent
-  );
-  return resultsWithTableFields;
+  const tableFields = flow(
+    map(getTableFields(schema, options)),
+    groupBy(flow(find(flow(get('name'), eq('SourceTable'))), get('value'))),
+    entries,
+    map(([tableName, tableRowFields]) => ({
+      tableName,
+      tableRowFields: flatten(tableRowFields)
+    }))
+  )(tableRows);
+
+  return tableFields;
 };
 
-const getTableFields = (queryResult) => {
-  const tableRows = get('results', queryResult);
-  const addFieldNameAndType =
-    (tableRow) =>
-    ({ Name: name, Type }) => ({
+const getTableFields = (schema, options) => (tableRow) =>
+  flow(
+    map(({ name, type }) => ({
       name,
-      type: toLower(Type),
+      type: toLower(type),
       value: get(name, tableRow)
-    });
+    })),
+    filter(hasValueAndIsNotIgnored(options)),
+    concat(__, { type: 'endOfRow' })
+  )(schema);
 
-  const formattedTableFields = flatMap(
-    (tableRow) =>
-      flow(
-        get('schema'),
-        map(addFieldNameAndType(tableRow)),
-        concat(__, { type: 'endOfRow' })
-      )(queryResult),
-    tableRows
-  );
-  return formattedTableFields;
-};
+const isIgnored = flow(
+  get('parsedKustoQueryIgnoreFields'),
+  concat('$table'),
+  filter(negate(eq('SourceTable'))),
+  map(toLower)
+);
+
+const hasValueAndIsNotIgnored = (options) => (fieldResult) =>
+  fieldResult.value && !isIgnored(options).includes(fieldResult.name.toLowerCase());
 
 const createSummaryTags = ({ alerts, incidents, kustoQueryResults }, options) => {
   const threatHuntRowCount = reduce(
@@ -99,10 +116,34 @@ const createSummaryTags = ({ alerts, incidents, kustoQueryResults }, options) =>
     0,
     kustoQueryResults
   );
+
+  const userOptionTags = compact(
+    map((fieldName) => {
+      const fieldValues = flow(
+        flatMap(get('tableRowFields')),
+        filter(
+          flow(
+            get('name'),
+            toLower,
+            replace(/\s/g, ''),
+            eq(flow(toLower, replace(/\s/g, ''))(fieldName))
+          )
+        ),
+        map(get('value')),
+        uniq,
+        take(3),
+        join(', '),
+        (fieldValues) => (size(fieldValues) === 3 ? fieldValues + '...' : fieldValues)
+      )(kustoQueryResults);
+      return size(fieldValues) ? `${fieldName}: ${fieldValues}` : '';
+    }, options.parsedKustoQuerySummaryFields)
+  );
+
   return []
     .concat(size(alerts) ? `Alerts: ${size(alerts)}` : [])
     .concat(size(incidents) ? `Incidents: ${size(incidents)}` : [])
-    .concat(threatHuntRowCount ? `Threat Hunt: ${threatHuntRowCount}` : []);
+    .concat(threatHuntRowCount ? `Threat Hunt: ${threatHuntRowCount}` : [])
+    .concat(userOptionTags);
 };
 
 module.exports = assembleLookupResults;
