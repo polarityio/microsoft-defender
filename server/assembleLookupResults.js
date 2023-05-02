@@ -61,7 +61,6 @@ const getResultsForThisEntity = (
   kustoQueryResults,
   options
 ) => {
-  getLogger().trace({ test: 222222222, asdf: isIgnored(options) });
   return {
     alerts: getResultForThisEntity(entity, alerts),
     incidents: getResultForThisEntity(entity, incidents),
@@ -73,7 +72,6 @@ const getKustoQueryResults = (entity, kustoQueryResults, options) => {
   const {
     schema,
     results: tableRows,
-    ...remaining
   } = getResultForThisEntity(entity, kustoQueryResults) || {};
 
   const tableFields = flow(
