@@ -60,7 +60,7 @@ module.exports = {
       key: 'kustoQueryString',
       name: 'Advanced Threat Hunting Kusto Query String',
       description:
-        'Kusto Query String to execute for Advanced Threat Hunting. All available tables can be found in the README.md. Example: `union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(30d) | take 10`',
+        'Kusto Query String to execute for Advanced Threat Hunting. All available tables can be found in our documentation. Example: `union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(30d) | take 10`',
       default:
         'union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(30d)| take 10',
       type: 'text',
