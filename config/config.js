@@ -82,7 +82,7 @@ module.exports = {
         'Comma delimited list of Fields to not show from the Advanced Threat Hunting Results in the Overlay. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
-      userCanEdit: true,
+      userCanEdit: false,
       adminOnly: false
     },
     {
@@ -92,7 +92,7 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'ignoreDeterminations',
@@ -101,7 +101,7 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'ignoreSeverities',
@@ -110,7 +110,7 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'ignoreStatuses',
@@ -119,7 +119,7 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'ignoreServiceSources',
@@ -128,17 +128,16 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'createdLookbackDays',
       name: 'Created On Lookback Days',
       description: 'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
-      type: 'text',
       default: 60,
       type: 'number',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     }
   ]
 };
