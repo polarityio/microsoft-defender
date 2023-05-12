@@ -1,16 +1,27 @@
 const fs = require('fs');
 
 const request = require('postman-request');
-const { get } = require('lodash/fp');
+const { get, isEmpty, getOr } = require('lodash/fp');
+const Bottleneck = require('bottleneck/es5');
 
 const { ERROR_MESSAGES } = require('../constants');
 const authenticateRequest = require('./authenticateRequest');
 const { getLogger } = require('../logging');
+const { parseErrorToReadableJson } = require('../dataTransformations');
 
-const SUCCESSFUL_ROUNDED_REQUEST_STATUS_CODES = [200];
 
 const _configFieldIsValid = (field) => typeof field === 'string' && field.length > 0;
 
+let limiter;
+
+function _setupLimiter(options) {
+  limiter = new Bottleneck({
+    maxConcurrent: 10, // no more than 5 lookups can be running at single time
+    highWater: 100, // no more than 50 lookups can be queued up
+    strategy: Bottleneck.strategy.OVERFLOW,
+    minTime: 100 // don't run lookups faster than 1 every options.minTime ms
+  });
+}
 const createRequestWithDefaults = () => {
   const {
     request: { ca, cert, key, passphrase, rejectUnauthorized, proxy }
@@ -44,15 +55,17 @@ const createRequestWithDefaults = () => {
       });
 
     return async (requestOptions) => {
+      if (!limiter) _setupLimiter(requestOptions.options);
+
       const preRequestFunctionResults = await preRequestFunction(requestOptions);
       const _requestOptions = {
         ...requestOptions,
         ...preRequestFunctionResults
       };
 
-      let postRequestFunctionResults;
       try {
-        const result = await _requestWithDefaults(_requestOptions);
+        result = await limiter.schedule(_requestWithDefaults, _requestOptions);
+
         checkForStatusError(result, _requestOptions);
 
         postRequestFunctionResults = await postRequestSuccessFunction(
@@ -60,10 +73,22 @@ const createRequestWithDefaults = () => {
           _requestOptions
         );
       } catch (error) {
-        postRequestFunctionResults = await postRequestFailureFunction(
-          error,
-          _requestOptions
-        );
+        try {
+          postRequestFunctionResults = await postRequestFailureFunction(
+            error,
+            _requestOptions
+          );
+        } catch (_error) {
+          const err = parseErrorToReadableJson(_error);
+          _error.maxRequestQueueLimitHit =
+            (isEmpty(err) && isEmpty(result)) ||
+            (err && err.message === 'This job has been dropped by Bottleneck');
+
+          _error.isConnectionReset =
+            getOr('', 'errors[0].meta.err.code', err) === 'ECONNRESET';
+          _error.entity = JSON.stringify(_requestOptions.entity);
+          throw _error;
+        }
       }
       return postRequestFunctionResults;
     };
@@ -77,8 +102,7 @@ const createRequestWithDefaults = () => {
       options: '{...}',
       headers: {
         ...requestOptions.headers,
-        // TODO
-        'x-api-key': '***'
+        Authorization: 'Bearer ***********'
       }
     };
 
@@ -91,18 +115,20 @@ const createRequestWithDefaults = () => {
 
     const roundedStatus = Math.round(statusCode / 100) * 100;
     const statusCodeNotSuccessful =
-      !SUCCESSFUL_ROUNDED_REQUEST_STATUS_CODES.includes(roundedStatus);
-    const responseBodyErrors = get('errors.0', body);
+      ![200].includes(roundedStatus);
+    const responseBodyError = get('error', body);
 
-    if (statusCodeNotSuccessful || responseBodyErrors) {
+    if (statusCodeNotSuccessful || responseBodyError) {
       const requestError = Error(
         `Request Error${
-          responseBodyErrors.message ? ` -> ${responseBodyErrors.message}` : ''
+          get('message', responseBodyError)
+            ? ` -> ${get('message', responseBodyError)}`
+            : ''
         }`
       );
       requestError.status = statusCodeNotSuccessful
         ? statusCode
-        : get('extensions.code', responseBodyErrors);
+        : get('code', responseBodyError);
       requestError.detail = get(get('error', body), ERROR_MESSAGES);
       requestError.description = JSON.stringify(body);
       requestError.requestOptions = JSON.stringify(requestOptionsWithoutSensitiveData);
