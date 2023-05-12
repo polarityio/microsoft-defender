@@ -69,10 +69,8 @@ const getResultsForThisEntity = (
 };
 
 const getKustoQueryResults = (entity, kustoQueryResults, options) => {
-  const {
-    schema,
-    results: tableRows,
-  } = getResultForThisEntity(entity, kustoQueryResults) || {};
+  const { schema, results: tableRows } =
+    getResultForThisEntity(entity, kustoQueryResults) || {};
 
   const tableFields = flow(
     map(getTableFields(schema, options)),
@@ -80,6 +78,7 @@ const getKustoQueryResults = (entity, kustoQueryResults, options) => {
     entries,
     map(([tableName, tableRowFields]) => ({
       tableName,
+      tableRowCount: size(tableRows),
       tableRowFields: flatten(tableRowFields)
     }))
   )(tableRows);
@@ -110,7 +109,7 @@ const hasValueAndIsNotIgnored = (options) => (fieldResult) =>
 
 const createSummaryTags = ({ alerts, incidents, kustoQueryResults }, options) => {
   const threatHuntRowCount = reduce(
-    (agg, tableResult) => agg + flow(get('results'), size)(tableResult),
+    (agg, tableResult) => agg + get('tableRowCount', tableResult),
     0,
     kustoQueryResults
   );
@@ -137,11 +136,16 @@ const createSummaryTags = ({ alerts, incidents, kustoQueryResults }, options) =>
     }, options.parsedKustoQuerySummaryFields)
   );
 
-  return []
-    .concat(size(alerts) ? `Alerts: ${size(alerts)}` : [])
-    .concat(size(incidents) ? `Incidents: ${size(incidents)}` : [])
-    .concat(threatHuntRowCount ? `Threat Hunt: ${threatHuntRowCount}` : [])
-    .concat(userOptionTags);
+  const alertsSize = size(alerts);
+  const incidentsSize = size(incidents);
+  const incidentsOrThreatHuntHaveSize = incidentsSize || threatHuntRowCount;
+  const countsTag = `${
+    alertsSize ? `Alerts: ${alertsSize}${incidentsOrThreatHuntHaveSize ? ' ' : ''}` : ''
+  }${
+    incidentsSize ? `Incidents: ${incidentsSize}${threatHuntRowCount ? ' ' : ''}` : ''
+  }${threatHuntRowCount ? `Threat Hunt: ${threatHuntRowCount}` : ''}`;
+
+  return [].concat(countsTag || []).concat(userOptionTags);
 };
 
 module.exports = assembleLookupResults;

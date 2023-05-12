@@ -1,7 +1,8 @@
 module.exports = {
   name: 'Microsoft Defender',
   acronym: 'MS-DEF',
-  description: 'Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries',
+  description:
+    'Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries',
   entityTypes: ['*'],
   defaultColor: 'light-blue',
   styles: ['./client/styles.less'],
@@ -59,8 +60,9 @@ module.exports = {
       key: 'kustoQueryString',
       name: 'Advanced Threat Hunting Kusto Query String',
       description:
-        'Kusto Query String to execute for Advanced Threat Hunting. All available tables include AlertInfo, AlertEvidence, IdentityInfo, EmailAttachmentInfo, EmailUrlInfo, EmailPostDeliveryEvents, & UrlClickEvents. Example: "union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(1000d) | take 10"',
-      default: 'union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(60d)| take 10',
+        'Kusto Query String to execute for Advanced Threat Hunting. All available tables can be found in the README.md. Example: `union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(30d) | take 10`',
+      default:
+        'union withsource=SourceTable AlertInfo, AlertEvidence | search "{{ENTITY}}" | where Timestamp >= ago(30d)| take 10',
       type: 'text',
       userCanEdit: false,
       adminOnly: false
@@ -88,7 +90,8 @@ module.exports = {
     {
       key: 'ignoreClassifications',
       name: 'Ignore Classifications',
-      description: 'Comma delimited list of Classifications that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      description:
+        'Comma delimited list of Classifications that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -97,7 +100,8 @@ module.exports = {
     {
       key: 'ignoreDeterminations',
       name: 'Ignore Determinations',
-      description: 'Comma delimited list of Determinations that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      description:
+        'Comma delimited list of Determinations that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -106,7 +110,8 @@ module.exports = {
     {
       key: 'ignoreSeverities',
       name: 'Ignore Severities',
-      description: 'Comma delimited list of Severities that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      description:
+        'Comma delimited list of Severities that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -115,7 +120,8 @@ module.exports = {
     {
       key: 'ignoreStatuses',
       name: 'Ignore Statuses',
-      description: 'Comma delimited list of Statuses that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      description:
+        'Comma delimited list of Statuses that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -124,7 +130,8 @@ module.exports = {
     {
       key: 'ignoreServiceSources',
       name: 'Ignore Service Sources',
-      description: 'Comma delimited list of Service Sources that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
+      description:
+        'Comma delimited list of Service Sources that if found in Incidents or Alerts will not show up in search results. This option must be set to "User can view and edit" or "User can view only".',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -133,7 +140,8 @@ module.exports = {
     {
       key: 'createdLookbackDays',
       name: 'Created On Lookback Days',
-      description: 'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
+      description:
+        'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
       type: 'text',
       default: 60,
       type: 'number',

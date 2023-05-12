@@ -50,8 +50,8 @@
     {
       "key": "kustoQueryString",
       "name": "Advanced Threat Hunting Kusto Query String",
-      "description": "Kusto Query String to execute for Advanced Threat Hunting. All available tables include AlertInfo, AlertEvidence, IdentityInfo, EmailAttachmentInfo, EmailUrlInfo, EmailPostDeliveryEvents, & UrlClickEvents. Example: \"union withsource=SourceTable AlertInfo, AlertEvidence | search \"{{ENTITY}}\" | where Timestamp >= ago(1000d) | take 10\"",
-      "default": "union withsource=SourceTable AlertInfo, AlertEvidence | search \"{{ENTITY}}\" | where Timestamp >= ago(60d)| take 10",
+      "description": "Kusto Query String to execute for Advanced Threat Hunting. All available tables can be found in the README.md. Example: `union withsource=SourceTable AlertInfo, AlertEvidence | search \"{{ENTITY}}\" | where Timestamp >= ago(30d) | take 10`",
+      "default": "union withsource=SourceTable AlertInfo, AlertEvidence | search \"{{ENTITY}}\" | where Timestamp >= ago(30d)| take 10",
       "type": "text",
       "userCanEdit": false,
       "adminOnly": false

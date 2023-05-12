@@ -24,6 +24,10 @@ polarity.export = PolarityComponent.extend({
         : 'kustoQueryResults'
     );
 
+    if (details.kustoQueryResults && details.kustoQueryResults.length > 1)
+      this.set('expandableTitleStates', {
+        kustoQueryResults: { 0: false }
+      });
     this._super(...arguments);
   },
   actions: {
