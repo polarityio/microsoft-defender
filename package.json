@@ -1,7 +1,7 @@
 {
   "main": "./integration.js",
   "name": "microsoft-defender",
-  "version": "3.0.0-beta",
+  "version": "3.0.0",
   "private": true,
   "license": "MIT",
   "author": "Polarity",
@@ -12,6 +12,6 @@
     "lodash": "^4.17.21",
     "luxon": "^3.3.0",
     "node-cache": "^5.1.2",
-    "postman-request": "^2.88.1-postman.31"
+    "postman-request": "^2.88.1-postman.32"
   }
 }
