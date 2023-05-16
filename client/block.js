@@ -5,21 +5,29 @@ polarity.export = PolarityComponent.extend({
   }),
   activeTab: '',
   expandableTitleStates: {
-    incidents: { 0: true },
     kustoQueryResults: { 0: true }
   },
   displayTabNames: {
     incidents: 'Incidents',
-    kustoQueryResults: 'Kusto Query Logs'
+    alerts: 'Alerts',
+    kustoQueryResults: 'Advanced Threat Hunting'
   },
   init() {
     const details = this.get('details');
 
     this.set(
       'activeTab',
-      details.incidents && details.incidents.length ? 'incidents' : 'kustoQueryResults'
+      details.incidents && details.incidents.length
+        ? 'incidents'
+        : details.alerts && details.alerts.length
+        ? 'alerts'
+        : 'kustoQueryResults'
     );
 
+    if (details.kustoQueryResults && details.kustoQueryResults.length > 1)
+      this.set('expandableTitleStates', {
+        kustoQueryResults: { 0: false }
+      });
     this._super(...arguments);
   },
   actions: {

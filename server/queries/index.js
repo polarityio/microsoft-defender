@@ -1,5 +1,9 @@
-const TODO = require('./TODO');
+const getAlerts = require('./getAlerts');
+const getIncidents = require('./getIncidents');
+const getKustoAdvancedThreatHuntingResults = require('./getKustoAdvancedThreatHuntingResults');
 
 module.exports = {
-  TODO
+  getAlerts,
+  getIncidents,
+  getKustoAdvancedThreatHuntingResults
 };
