@@ -8,6 +8,9 @@ The Polarity Microsoft 365 Defender Integration allows you to search for Emails 
 
 To learn more about Microsoft 365 Defender, visit the [official website](https://learn.microsoft.com/en-us/microsoft-365/security/defender/microsoft-365-defender?view=o365-worldwide).
 
+> ***NOTE:*** The permissions required on your `App Registration`  which you obtain your `Client/Application ID`, `Tenant/Directory ID`, & `Client Secret` User Options from need to be `SecurityIncident.Read.All`, `ThreatHunting.Read.All` & `User.Read`
+
+
 ## Microsoft 365 Defender Integration Options
 
 ### Azure AD Registered App Client/Application ID
