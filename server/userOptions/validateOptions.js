@@ -58,9 +58,6 @@ const validateOptions = async (options, callback) => {
     options.createdLookbackDays.value <= 0
       ? [{ key: 'createdLookbackDays', message: 'Must be greater than 0' }]
       : [];
-  getLogger().trace({
-    asdf: errors.concat(filterOptionErrors).concat(lookbackDaysError)
-  });
 
   callback(null, errors.concat(filterOptionErrors).concat(lookbackDaysError));
 };
@@ -69,8 +66,9 @@ const validateAuthentication = async (options) => {
   try {
     await requestWithDefaults({
       method: 'GET',
+      site: 'graph',
       route: 'incidents',
-      qs: { $top: 10 },
+      qs: { $top: 1 },
       options
     });
     return [];

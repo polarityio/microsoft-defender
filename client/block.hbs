@@ -182,17 +182,23 @@
           {{alert.title}}
         </h1>
       {{/if}}
-      {{#if alert.alertWebUrl}}
+      {{#if alert.id}}
         <div class="link-container">
-          <a class="p-link" href={{alert.alertWebUrl}}>
+          <a
+            class="p-link"
+            href="https://security.microsoft.com/alerts/{{alert.id}}"
+          >
             View Alert in Defender
             {{fa-icon icon="external-link-square" class="external-link-icon"}}
           </a>
         </div>
       {{/if}}
-      {{#if alert.incidentWebUrl}}
+      {{#if alert.incidentId}}
         <div class="link-container">
-          <a class="p-link" href={{alert.incidentWebUrl}}>
+          <a
+            class="p-link"
+            href="https://security.microsoft.com/incidents/{{alert.incidentId}}"
+          >
             View Related Incident in Defender
             {{fa-icon icon="external-link-square" class="external-link-icon"}}
           </a>
@@ -279,31 +285,31 @@
           <span class="p-value">{{join ", " alert.mitreTechniques}}</span>
         </div>
       {{/if}}
-      {{#if alert.createdDateTime}}
+      {{#if alert.alertCreationTime}}
         <div>
           <span class="p-key">Created DateTime: </span>
           <span class="p-value">{{moment-format
-              alert.createdDateTime
+              alert.alertCreationTime
               "MM/DD/YYYY HH:mm:ss"
               timeZone=timezone
             }}</span>
         </div>
       {{/if}}
-      {{#if alert.lastUpdateDateTime}}
+      {{#if alert.lastUpdateTime}}
         <div>
           <span class="p-key">Last Updated DateTime: </span>
           <span class="p-value">{{moment-format
-              alert.lastUpdateDateTime
+              alert.lastUpdateTime
               "MM/DD/YYYY HH:mm:ss"
               timeZone=timezone
             }}</span>
         </div>
       {{/if}}
-      {{#if alert.resolvedDateTime}}
+      {{#if alert.resolvedTime}}
         <div>
           <span class="p-key">Resolved DateTime: </span>
           <span class="p-value">{{moment-format
-              alert.resolvedDateTime
+              alert.resolvedTime
               "MM/DD/YYYY HH:mm:ss"
               timeZone=timezone
             }}</span>
@@ -333,19 +339,30 @@
           <div class="alert-comments">
             {{#each (take 7 alert.comments) as |comment|}}
               <span class="tag link-tag d-inline-flex align-items-center">
-                <span class="text-container summary-source">
-                  {{comment.createdBy}}
-                  ({{moment-format
-                    comment.createdTime
-                    "MM/DD/YYYY HH:mm:ss"
-                    timeZone=timezone
-                  }}): "{{comment.comment}}"
-                </span>
+                {{#if comment.comment}}
+                  <div>
+                    <span class="p-key">Comment: </span>
+                    <span class="p-value">{{comment.comment}}</span>
+                  </div>
+                {{/if}}
+                <div>
+                  <span class="text-container summary-source">
+                    {{comment.createdBy}}
+                    ({{moment-format
+                      comment.createdTime
+                      "MM/DD/YYYY HH:mm:ss"
+                      timeZone=timezone
+                    }}): "{{comment.comment}}"
+                  </span>
+                </div>
               </span>
             {{/each}}
             {{#if (gt alert.comments.length 7)}}
               <div class="remaining-link">
-                <a class="p-link" href={{alert.alertWebUrl}}>
+                <a
+                  class="p-link"
+                  href="https://security.microsoft.com/alerts/{{alert.id}}"
+                >
                   ...View Remaining in Defender
                   {{fa-icon icon="external-link-square" class="external-link-icon"}}
                 </a>
@@ -375,7 +392,12 @@
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "recommendedActions")}}
           >
-            <span class="text">{{fa-icon icon="shield-check" class="context-icon" fixedWidth=true}} Recommended Actions</span>
+            <span class="text">{{fa-icon
+                icon="shield-check"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Recommended Actions</span>
             {{fa-icon icon="angle-up"}}
           </a>
           <div class="alert-comments">
@@ -389,7 +411,12 @@
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "recommendedActions")}}
           >
-            <span class="text">{{fa-icon icon="shield-check" class="context-icon" fixedWidth=true}} Recommended Actions</span>
+            <span class="text">{{fa-icon
+                icon="shield-check"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Recommended Actions</span>
             {{fa-icon icon="angle-down"}}
           </a>
         {{/if}}
@@ -401,7 +428,12 @@
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "alertEvidence")}}
           >
-            <span class="text">{{fa-icon icon="receipt" class="context-icon" fixedWidth=true}} Evidence</span>
+            <span class="text">{{fa-icon
+                icon="receipt"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Evidence</span>
             {{fa-icon icon="angle-up"}}
           </a>
           <div class="alert-evidences">
@@ -413,53 +445,53 @@
                     <span class="p-value">{{titleize evidence.verdict}}</span>
                   </div>
                 {{/if}}
-                {{#if evidence.fileDetails}}
-                  {{#if evidence.fileDetails.fileName}}
+                {{#if evidence}}
+                  {{#if evidence.fileName}}
                     <div>
                       <span class="p-key">File Name: </span>
-                      <span class="p-value">{{evidence.fileDetails.fileName}}</span>
+                      <span class="p-value">{{evidence.fileName}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.fileSize}}
+                  {{#if evidence.fileSize}}
                     <div>
                       <span class="p-key">File Size: </span>
-                      <span class="p-value">{{evidence.fileDetails.fileSize}}</span>
+                      <span class="p-value">{{evidence.fileSize}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.filePath}}
+                  {{#if evidence.filePath}}
                     <div>
                       <span class="p-key">File Path: </span>
-                      <span class="p-value">{{evidence.fileDetails.filePath}}</span>
+                      <span class="p-value">{{evidence.filePath}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.filePublisher}}
+                  {{#if evidence.filePublisher}}
                     <div>
                       <span class="p-key">File Publisher: </span>
-                      <span class="p-value">{{evidence.fileDetails.filePublisher}}</span>
+                      <span class="p-value">{{evidence.filePublisher}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.sha1}}
+                  {{#if evidence.sha1}}
                     <div>
                       <span class="p-key">SHA1: </span>
-                      <span class="p-value">{{evidence.fileDetails.sha1}}</span>
+                      <span class="p-value">{{evidence.sha1}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.sha256}}
+                  {{#if evidence.sha256}}
                     <div>
                       <span class="p-key">SHA256: </span>
-                      <span class="p-value">{{evidence.fileDetails.sha256}}</span>
+                      <span class="p-value">{{evidence.sha256}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.signer}}
+                  {{#if evidence.signer}}
                     <div>
                       <span class="p-key">Signer: </span>
-                      <span class="p-value">{{evidence.fileDetails.signer}}</span>
+                      <span class="p-value">{{evidence.signer}}</span>
                     </div>
                   {{/if}}
-                  {{#if evidence.fileDetails.issuer}}
+                  {{#if evidence.issuer}}
                     <div>
                       <span class="p-key">Issuer: </span>
-                      <span class="p-value">{{evidence.fileDetails.issuer}}</span>
+                      <span class="p-value">{{evidence.issuer}}</span>
                     </div>
                   {{/if}}
                 {{/if}}
@@ -724,17 +756,17 @@
                   <div>
                     <span class="p-key">First Seen Date Time: </span>
                     <span class="p-value">{{moment-format
-                        alert.firstSeenDateTime
+                        evidence.firstSeenDateTime
                         "MM/DD/YYYY HH:mm:ss"
                         timeZone=timezone
                       }}</span>
                   </div>
                 {{/if}}
-                {{#if evidence.createdDateTime}}
+                {{#if evidence.evidenceCreationTime}}
                   <div>
                     <span class="p-key">Created Date Time: </span>
                     <span class="p-value">{{moment-format
-                        alert.createdDateTime
+                        evidence.evidenceCreationTime
                         "MM/DD/YYYY HH:mm:ss"
                         timeZone=timezone
                       }}</span>
@@ -763,7 +795,10 @@
           </div>
           {{#if (gt alert.evidence.length 5)}}
             <div class="remaining-link">
-              <a class="p-link" href={{alert.alertWebUrl}}>
+              <a
+                class="p-link"
+                href="https://security.microsoft.com/alerts/{{alert.providerAlertId}}"
+              >
                 ...View Remaining in Defender
                 {{fa-icon icon="external-link-square" class="external-link-icon"}}
               </a>
@@ -775,7 +810,12 @@
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "alertEvidence")}}
           >
-            <span class="text">{{fa-icon icon="receipt" class="context-icon" fixedWidth=true}} Evidence</span>
+            <span class="text">{{fa-icon
+                icon="receipt"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Evidence</span>
             {{fa-icon icon="angle-down"}}
           </a>
         {{/if}}
@@ -800,25 +840,96 @@
           {{fa-icon icon="angle-up"}}
         </a>
         <div class="table-content">
-          {{#each kustoQueryResult.tableRowFields as |displayField|}}
+          {{#each kustoQueryResult.tableRowFields as |displayField displayFieldIndex|}}
             {{#if
               (or
                 displayField.value (eq displayField.value false) (eq displayField.value 0)
               )
             }}
               <div>
-                <span class="p-key">{{titleize (humanize (dasherize displayField.name))}}: </span>
-                <span class="p-value break-all">
-                  {{#if (eq displayField.type "datetime")}}
+                {{#if (eq displayField.type "datetime")}}
+                  <span class="p-key">{{titleize
+                      (humanize (dasherize displayField.name))
+                    }}:
+                  </span>
+                  <span class="p-value break-all">
                     {{moment-format
                       displayField.value
                       "MM/DD/YYYY HH:mm:ss"
                       timeZone=timezone
                     }}
+                  </span>
+                {{else if (eq displayField.type "array")}}
+                  <span class="p-key">{{titleize
+                      (humanize (dasherize displayField.name))
+                    }}:
+                  </span>
+                  <span class="p-value break-all">
+                    {{join ", " displayField.value}}
+                  </span>
+                {{else if (eq displayField.type "object")}}
+                  {{#if
+                    (get
+                      (get
+                        expandableTitleStates (concat "displayField" displayFieldIndex)
+                      )
+                      index
+                    )
+                  }}
+                    <a
+                      href="#"
+                      class="expandable-title"
+                      {{on
+                        "click"
+                        (action
+                          "toggleExpandableTitle"
+                          index
+                          (concat "displayField" displayFieldIndex)
+                        )
+                      }}
+                    >
+                      <span class="text">{{titleize
+                          (humanize (dasherize displayField.name))
+                        }}</span>
+                      {{fa-icon icon="angle-up"}}
+                    </a>
+                    <div class="ml-2">
+                      {{#each-in displayField.value as |key value|}}
+                        <div>
+                          <span class="p-key">{{titleize (humanize (dasherize key))}}:
+                          </span>
+                          <span class="p-value break-all">{{value}}</span>
+                        </div>
+                      {{/each-in}}
+                    </div>
                   {{else}}
-                    {{displayField.value}}
+                    <a
+                      href="#"
+                      class="expandable-title"
+                      {{on
+                        "click"
+                        (action
+                          "toggleExpandableTitle"
+                          index
+                          (concat "displayField" displayFieldIndex)
+                        )
+                      }}
+                    >
+                      <span class="text">{{titleize
+                          (humanize (dasherize displayField.name))
+                        }}</span>
+                      {{fa-icon icon="angle-down"}}
+                    </a>
                   {{/if}}
-                </span>
+                {{else}}
+                  <span class="p-key">{{titleize
+                      (humanize (dasherize displayField.name))
+                    }}:
+                  </span>
+                  <span class="p-value break-all">
+                    {{displayField.value}}
+                  </span>
+                {{/if}}
               </div>
             {{else if (eq displayField.type "endOfRow")}}
               <hr />

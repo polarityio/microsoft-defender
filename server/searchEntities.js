@@ -1,17 +1,22 @@
 const {
+  searchAlerts,
+  searchIncidents,
+  searchKustoAdvancedThreatHuntingResults,
   getAlerts,
-  getIncidents,
-  getKustoAdvancedThreatHuntingResults
+  getDevices
 } = require('./queries');
 
 const searchEntities = async (entities, options) => {
-  const [alerts, incidents, kustoQueryResults] = await Promise.all([
-    getAlerts(entities, options),
-    getIncidents(entities, options),
-    getKustoAdvancedThreatHuntingResults(entities, options)
+  const [foundAlerts, incidents, kustoQueryResults] = await Promise.all([
+    searchAlerts(entities, options),
+    searchIncidents(entities, options),
+    searchKustoAdvancedThreatHuntingResults(entities, options)
   ]);
 
-  return { alerts, incidents, kustoQueryResults };
+  const alerts = await getAlerts(foundAlerts, kustoQueryResults, options);
+  const devices = await getDevices(alerts, options);
+
+  return { alerts, devices, incidents, kustoQueryResults };
 };
 
 module.exports = searchEntities;

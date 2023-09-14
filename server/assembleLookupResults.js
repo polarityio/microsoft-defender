@@ -1,5 +1,6 @@
 const {
   flow,
+
   get,
   size,
   find,
@@ -21,8 +22,15 @@ const {
   uniq,
   compact,
   replace,
-  join
+  join,
+  keys,
+  first,
+  isArray,
+  orderBy,
+  fromPairs
 } = require('lodash/fp');
+const mapObj = require('lodash/fp/map').convert({ cap: false });
+
 const { getLogger } = require('./logging');
 const { and } = require('./dataTransformations');
 
@@ -88,14 +96,38 @@ const getKustoQueryResults = (entity, kustoQueryResults, options) => {
 
 const getTableFields = (schema, options) => (tableRow) =>
   flow(
-    map(({ name, type }) => ({
-      name,
-      type: toLower(type),
-      value: get(name, tableRow)
-    })),
+    map(({ name, type }) =>
+      name === 'AdditionalFields'
+        ? flow(
+            get(name),
+            (field) => (field ? flow(JSON.parse)(field) : {}),
+            mapObj((value, key) =>
+              IGNORE_FIELDS.includes(key) ? null : [key, JSON.stringify(value)]
+            ),
+            compact,
+            fromPairs,
+            (additionalFields) => ({
+              name,
+              type: 'object',
+              value: additionalFields
+            })
+          )(tableRow)
+        : {
+            name,
+            type: toLower(type),
+            value: get(name, tableRow)
+          }
+    ),
+    flatten,
+    orderBy(
+      (field) => ({ string: 1, datetime: 2, int64: 3, array: 4, object: 5 }[field.type]),
+      ['asc']
+    ),
     filter(hasValueAndIsNotIgnored(options)),
     concat(__, { type: 'endOfRow' })
   )(schema);
+
+const IGNORE_FIELDS = ['$id'];
 
 const isIgnored = flow(
   get('parsedKustoQueryIgnoreFields'),
@@ -141,9 +173,9 @@ const createSummaryTags = ({ alerts, incidents, kustoQueryResults }, options) =>
   const incidentsOrThreatHuntHaveSize = incidentsSize || threatHuntRowCount;
   const countsTag = `${
     alertsSize ? `Alerts: ${alertsSize}${incidentsOrThreatHuntHaveSize ? ' ' : ''}` : ''
-  }${
-    incidentsSize ? `Incidents: ${incidentsSize}${threatHuntRowCount ? ' ' : ''}` : ''
-  }${threatHuntRowCount ? `Threat Hunt: ${threatHuntRowCount}` : ''}`;
+  }${incidentsSize ? `Incidents: ${incidentsSize}${threatHuntRowCount ? ' ' : ''}` : ''}${
+    threatHuntRowCount ? `Threat Hunt: ${threatHuntRowCount}` : ''
+  }`;
 
   return [].concat(countsTag || []).concat(userOptionTags);
 };

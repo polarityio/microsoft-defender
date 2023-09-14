@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const request = require('postman-request');
-const { get, isEmpty, getOr } = require('lodash/fp');
+const { get, isEmpty, getOr, identity } = require('lodash/fp');
 const Bottleneck = require('bottleneck/es5');
 
 const { ERROR_MESSAGES } = require('../constants');
@@ -114,8 +114,7 @@ const createRequestWithDefaults = () => {
     });
 
     const roundedStatus = Math.round(statusCode / 100) * 100;
-    const statusCodeNotSuccessful =
-      ![200].includes(roundedStatus);
+    const statusCodeNotSuccessful = ![200].includes(roundedStatus);
     const responseBodyError = get('error', body);
 
     if (statusCodeNotSuccessful || responseBodyError) {
@@ -136,7 +135,20 @@ const createRequestWithDefaults = () => {
     }
   };
 
-  const requestDefaultsWithInterceptors = requestWithDefaultsBuilder(authenticateRequest);
+  const requestDefaultsWithInterceptors = requestWithDefaultsBuilder(
+    authenticateRequest,
+    identity,
+    (error, requestOptions) => {
+      if (
+        requestOptions.site === 'defender' &&
+        requestOptions.route.includes('alerts') &&
+        error.status === 404
+      )
+        return {};
+
+      throw error;
+    }
+  );
 
   return requestDefaultsWithInterceptors;
 };
