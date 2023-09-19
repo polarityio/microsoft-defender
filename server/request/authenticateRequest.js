@@ -1,5 +1,5 @@
 const { ConfidentialClientApplication } = require('@azure/msal-node');
-const { get, flow, pick, join, values } = require('lodash/fp');
+const { get, flow, pick, join, values, concat } = require('lodash/fp');
 
 const NodeCache = require('node-cache');
 const clientCache = new NodeCache();
@@ -35,6 +35,7 @@ const getToken = async (options, site) => {
   const clientCacheId = flow(
     pick(['clientId', 'tenantId', 'clientSecret']),
     values,
+    concat(site),
     join('')
   )(options);
 

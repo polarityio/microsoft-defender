@@ -21,6 +21,20 @@
       </a>
     </li>
   {{/if}}
+  {{#if (get details "devices" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "devices"}}
+        class="nav-link {{if (eq activeTab 'devices') 'active'}}"
+        href="#"
+      >
+        {{get displayTabNames "devices"}}
+        {{#if checkIfDevicesIsolationIsPendingIsRunning}}
+          {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+        {{/if}}
+      </a>
+    </li>
+  {{/if}}
   {{#if (get details "kustoQueryResults" "length")}}
     <li class="nav-item">
       <a
@@ -130,7 +144,7 @@
               Comments</span>
             {{fa-icon icon="angle-up"}}
           </a>
-          <div class="incident-comments">
+          <div class="ml-2 incident-comments">
             {{#each (take 7 incident.comments) as |comment|}}
               <span class="tag link-tag d-inline-flex align-items-center">
                 <span class="text-container summary-source">
@@ -184,10 +198,7 @@
       {{/if}}
       {{#if alert.id}}
         <div class="link-container">
-          <a
-            class="p-link"
-            href="https://security.microsoft.com/alerts/{{alert.id}}"
-          >
+          <a class="p-link" href="https://security.microsoft.com/alerts/{{alert.id}}">
             View Alert in Defender
             {{fa-icon icon="external-link-square" class="external-link-icon"}}
           </a>
@@ -206,6 +217,12 @@
       {{/if}}
       {{#if alert.description}}
         <div class="p-block mb-1">{{alert.description}}</div>
+      {{/if}}
+      {{#if alert.computerDnsName}}
+        <div>
+          <span class="p-key">Device Name: </span>
+          <span class="p-value">{{uppercase alert.computerDnsName}}</span>
+        </div>
       {{/if}}
       {{#if alert.status}}
         <div>
@@ -273,6 +290,12 @@
           <span class="p-value">{{alert.threatDisplayName}}</span>
         </div>
       {{/if}}
+      {{#if alert.threatName}}
+        <div>
+          <span class="p-key">Threat Name: </span>
+          <span class="p-value">{{alert.threatName}}</span>
+        </div>
+      {{/if}}
       {{#if alert.threatFamilyName}}
         <div>
           <span class="p-key">Threat Family Name: </span>
@@ -336,7 +359,7 @@
               Comments</span>
             {{fa-icon icon="angle-up"}}
           </a>
-          <div class="alert-comments">
+          <div class="ml-2 alert-comments">
             {{#each (take 7 alert.comments) as |comment|}}
               <span class="tag link-tag d-inline-flex align-items-center">
                 {{#if comment.comment}}
@@ -436,7 +459,7 @@
               Evidence</span>
             {{fa-icon icon="angle-up"}}
           </a>
-          <div class="alert-evidences">
+          <div class="ml-2 alert-evidences">
             {{#each (take 5 alert.evidence) as |evidence evidenceIndex|}}
               <div class="alert-evidence">
                 {{#if evidence.verdict}}
@@ -824,6 +847,388 @@
   {{/each}}
 {{/if}}
 
+{{#if (eq activeTab "devices")}}
+  <br />
+  {{#each details.devices as |device index|}}
+    <div class="device-content">
+      {{#if device.computerDnsName}}
+        <h1 class="p-title">
+          {{fa-icon icon="tv" class="context-icon" fixedWidth=true}}
+          {{uppercase device.computerDnsName}}
+        </h1>
+      {{/if}}
+      {{#if device.id}}
+        <div class="link-container">
+          <a
+            class="p-link"
+            href="https://security.microsoft.com/machines/v2/{{device.id}}/overview"
+          >
+            View Device in Defender
+            {{fa-icon icon="external-link-square" class="external-link-icon"}}
+          </a>
+        </div>
+      {{/if}}
+
+      {{#if block.userOptions.enableMachinesIsolation}}
+        <div class="mb-2">
+          {{#if checkIfDevicesIsolationIsPendingIsRunning}}
+            {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+          {{else if device.deviceIsPending}}
+            <div class="device-isolation-status d-flex flex-row justify-content-between align-items-center">
+              <span>
+                Device Is Pending
+                {{#if (eq device.isExcluded true)}}
+                  Release from Isolation
+                {{else}}
+                  Isolation
+                {{/if}}
+              </span>
+              <button
+                {{action "checkIfDevicesIsolationIsPending" true index}}
+                class="change-isolation-button"
+                disabled={{checkIfDevicesIsolationIsPendingIsRunning}}
+              >
+                Refresh
+                {{#if (get showRefreshCheckmark index)}}
+                  {{fa-icon "check" fixedWidth=true}}
+                {{/if}}
+                {{#if checkIfDevicesIsolationIsPendingIsRunning}}
+                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            <div>
+              {{input
+                type="text"
+                class="input-field"
+                placeholder="Cancellation Comment"
+                input=(action (mut device.statusChangeComment) value="target.value")
+                value=device.statusChangeComment
+                disable=changeIsolationStatusIsRunning
+              }}
+            </div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <button
+                {{action "changeIsolationStatus" "cancel" index}}
+                class="change-isolation-button"
+                disabled={{changeIsolationStatusIsRunning}}
+              >
+                Cancel
+                {{#if (eq device.isExcluded true)}}Release from Isolation{{else}}Isolation{{/if}}
+                {{#if changeIsolationStatusIsRunning}}
+                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            {{#if changeIsolationStatusErrorMessage}}
+              <div class="alert alert-danger mt-1">
+                {{changeIsolationStatusErrorMessage}}
+              </div>
+            {{/if}}
+          {{else if (eq device.isExcluded true)}}
+            <div class="device-isolation-status">Device Is Isolated</div>
+            <div>
+              {{input
+                type="text"
+                class="input-field"
+                placeholder="UnIsolation Comment"
+                input=(action (mut device.statusChangeComment) value="target.value")
+                value=device.statusChangeComment
+                disable=changeIsolationStatusIsRunning
+              }}
+            </div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <button
+                {{action "changeIsolationStatus" "releaseFromIsolation" index}}
+                class="change-isolation-button"
+                disabled={{changeIsolationStatusIsRunning}}
+              >
+                Release Device from Isolation
+                {{#if changeIsolationStatusIsRunning}}
+                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            {{#if changeIsolationStatusErrorMessage}}
+              <div class="alert alert-danger mt-1">
+                {{changeIsolationStatusErrorMessage}}
+              </div>
+            {{/if}}
+          {{else if (eq device.isExcluded false)}}
+            <div class="device-isolation-status">Device Is Not Isolated</div>
+            <div>
+              {{input
+                type="text"
+                class="input-field"
+                placeholder="Isolation Comment"
+                input=(action (mut device.statusChangeComment) value="target.value")
+                value=device.statusChangeComment
+                disable=changeIsolationStatusIsRunning
+              }}
+            </div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <button
+                {{action "changeIsolationStatus" "isolate" index}}
+                class="change-isolation-button"
+                disabled={{changeIsolationStatusIsRunning}}
+              >
+                Isolate Device
+                {{#if changeIsolationStatusIsRunning}}
+                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            {{#if changeIsolationStatusErrorMessage}}
+              <div class="alert alert-danger mt-1">
+                {{changeIsolationStatusErrorMessage}}
+              </div>
+            {{/if}}
+          {{/if}}
+        </div>
+      {{/if}}
+
+      {{#if (or (eq device.isExcluded true) (eq device.isExcluded false))}}
+        <div>
+          <span class="p-key">Is Excluded:</span>
+          <span class="p-value">{{device.isExcluded}}</span>
+        </div>
+      {{/if}}
+      {{#if device.exclusionReason}}
+        <div>
+          <span class="p-key">Exclusion Reason:</span>
+          <span class="p-value">{{device.exclusionReason}}</span>
+        </div>
+      {{/if}}
+      {{#if device.lastIpAddress}}
+        <div>
+          <span class="p-key">Last IP Address:</span>
+          <span class="p-value">{{device.lastIpAddress}}</span>
+        </div>
+      {{/if}}
+      {{#if device.lastExternalIpAddress}}
+        <div>
+          <span class="p-key">Last External IP Address: </span>
+          <span class="p-value">{{device.lastExternalIpAddress}}</span>
+        </div>
+      {{/if}}
+      {{#if device.agentVersion}}
+        <div>
+          <span class="p-key">Agent Version: </span>
+          <span class="p-value">{{device.agentVersion}}</span>
+        </div>
+      {{/if}}
+      {{#if device.defenderAvStatus}}
+        <div>
+          <span class="p-key">Defender AV Status: </span>
+          <span class="p-value">{{device.defenderAvStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.managedByStatus}}
+        <div>
+          <span class="p-key">Managed By Status: </span>
+          <span class="p-value">{{device.managedByStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.deviceValue}}
+        <div>
+          <span class="p-key">Device Value: </span>
+          <span class="p-value">{{device.deviceValue}}</span>
+        </div>
+      {{/if}}
+      {{#if device.onboardingStatus}}
+        <div>
+          <span class="p-key">Onboarding Status: </span>
+          <span class="p-value">{{device.onboardingStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.healthStatus}}
+        <div>
+          <span class="p-key">Health Status: </span>
+          <span class="p-value">{{device.healthStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.riskScore}}
+        <div>
+          <span class="p-key">Risk Score:</span>
+          <span class="p-value">{{device.riskScore}}</span>
+        </div>
+      {{/if}}
+      {{#if device.exposureLevel}}
+        <div>
+          <span class="p-key">Exposure Level:</span>
+          <span class="p-value">{{device.exposureLevel}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osArchitecture}}
+        <div>
+          <span class="p-key">OS Architecture:</span>
+          <span class="p-value">{{device.osArchitecture}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osVersion}}
+        <div>
+          <span class="p-key">OS Version:</span>
+          <span class="p-value">{{device.osVersion}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osPlatform}}
+        <div>
+          <span class="p-key">OS Platform:</span>
+          <span class="p-value">{{device.osPlatform}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osProcessor}}
+        <div>
+          <span class="p-key">OS Processor:</span>
+          <span class="p-value">{{device.osProcessor}}</span>
+        </div>
+      {{/if}}
+      {{#if device.version}}
+        <div>
+          <span class="p-key">Version:</span>
+          <span class="p-value">{{device.version}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osBuild}}
+        <div>
+          <span class="p-key">OS Build:</span>
+          <span class="p-value">{{device.osBuild}}</span>
+        </div>
+      {{/if}}
+      {{#if device.managedBy}}
+        <div>
+          <span class="p-key">Managed By:</span>
+          <span class="p-value">{{device.managedBy}}</span>
+        </div>
+      {{/if}}
+
+      {{#if
+        (or
+          (eq device.isPotentialDuplication true) (eq device.isPotentialDuplication false)
+        )
+      }}
+        <div>
+          <span class="p-key">Is Potential Duplication:</span>
+          <span class="p-value">{{device.isPotentialDuplication}}</span>
+        </div>
+      {{/if}}
+      {{#if (or (eq device.isAadJoined true) (eq device.isAadJoined false))}}
+        <div>
+          <span class="p-key">Is AAD Joined:</span>
+          <span class="p-value">{{device.isAadJoined}}</span>
+        </div>
+      {{/if}}
+      {{#if (or (eq device.managedBy true) (eq device.managedBy false))}}
+        <div>
+          <span class="p-key">Managed By:</span>
+          <span class="p-value">{{device.managedBy}}</span>
+        </div>
+      {{/if}}
+
+      {{#if device.firstSeen}}
+        <div>
+          <span class="p-key">First Seen: </span>
+          <span class="p-value">{{moment-format
+              device.firstSeen
+              "MM/DD/YYYY HH:mm:ss"
+              timeZone=timezone
+            }}</span>
+        </div>
+      {{/if}}
+      {{#if device.lastSeen}}
+        <div>
+          <span class="p-key">Last Seen: </span>
+          <span class="p-value">{{moment-format
+              device.lastSeen
+              "MM/DD/YYYY HH:mm:ss"
+              timeZone=timezone
+            }}</span>
+        </div>
+      {{/if}}
+
+      {{#if device.machineTags.length}}
+        <div>
+          <span class="p-key">Machine Tags: </span>
+          <span class="p-value">{{join ", " device.machineTags}}</span>
+        </div>
+      {{/if}}
+
+      {{#if device.ipAddresses.length}}
+        {{#if (get (get expandableTitleStates "deviceIpAddress") index)}}
+          <a
+            href="#"
+            class="expandable-title"
+            {{on "click" (action "toggleExpandableTitle" index "deviceIpAddress")}}
+          >
+            <span class="text">{{fa-icon
+                icon="location-arrow"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              IP Addresses</span>
+            {{fa-icon icon="angle-up"}}
+          </a>
+          <div class="ml-2 device-ip-address">
+            {{#each device.ipAddresses as |ipAddress|}}
+              <div class="mb-2 device-ip-address">
+                {{#if ipAddress.ipAddress}}
+                  <div>
+                    <span class="p-key">IP Address: </span>
+                    <span class="p-value">{{ipAddress.ipAddress}}</span>
+                  </div>
+                {{/if}}
+                {{#if ipAddress.macAddress}}
+                  <div>
+                    <span class="p-key">MAC Address: </span>
+                    <span class="p-value">{{ipAddress.macAddress}}</span>
+                  </div>
+                {{/if}}
+                {{#if ipAddress.type}}
+                  <div>
+                    <span class="p-key">Type: </span>
+                    <span class="p-value">{{ipAddress.type}}</span>
+                  </div>
+                {{/if}}
+                {{#if ipAddress.operationalStatus}}
+                  <div>
+                    <span class="p-key">Operational Status: </span>
+                    <span class="p-value">{{ipAddress.operationalStatus}}</span>
+                  </div>
+                {{/if}}
+              </div>
+            {{/each}}
+            {{#if (gt alert.comments.length 7)}}
+              <div class="remaining-link">
+                <a
+                  class="p-link"
+                  href="https://security.microsoft.com/alerts/{{alert.id}}"
+                >
+                  ...View Remaining in Defender
+                  {{fa-icon icon="external-link-square" class="external-link-icon"}}
+                </a>
+              </div>
+            {{/if}}
+          </div>
+        {{else}}
+          <a
+            href="#"
+            class="expandable-title"
+            {{on "click" (action "toggleExpandableTitle" index "deviceIpAddress")}}
+          >
+            <span class="text">{{fa-icon
+                icon="location-arrow"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              IP Addresses</span>
+            {{fa-icon icon="angle-down"}}
+          </a>
+        {{/if}}
+      {{/if}}
+    </div>
+  {{/each}}
+{{/if}}
+
 {{#if (eq activeTab "kustoQueryResults")}}
   <br />
   {{#each details.kustoQueryResults as |kustoQueryResult index|}}
@@ -839,7 +1244,7 @@
             <em>{{titleize (humanize (dasherize kustoQueryResult.tableName))}}</em></span>
           {{fa-icon icon="angle-up"}}
         </a>
-        <div class="table-content">
+        <div class="ml-2 table-content">
           {{#each kustoQueryResult.tableRowFields as |displayField displayFieldIndex|}}
             {{#if
               (or

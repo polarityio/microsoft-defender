@@ -1,6 +1,7 @@
 const { map, flatMap } = require('lodash/fp');
 const { requestsInParallel } = require('../request');
 const { createSingleEntityResults, createUniqRequestsWithMultipleEntities } = require('./common');
+const { getLogger } = require('../logging');
 
 const getDevices = async (alerts, options) => {
   const machineRequests = getMachineRequestsWithoutDuplicates(alerts, options);

@@ -4,6 +4,7 @@
 
 Microsoft 365 Defender is a unified pre- and post-breach enterprise defense suite that natively coordinates detection, prevention, investigation, and response across endpoints, identities, email, and applications to provide integrated protection against sophisticated attacks.
 
+TODO: Update features description and other premissions needed for isolation
 The Polarity Microsoft 365 Defender Integration allows you to search for Emails assigned to Alerts and Incidents, along with the ability to run Advanced Threat Hunting Kusto Queries on all entity types from Microsoft 365 Defender.
 
 To learn more about Microsoft 365 Defender, visit the [official website](https://learn.microsoft.com/en-us/microsoft-365/security/defender/microsoft-365-defender?view=o365-worldwide).

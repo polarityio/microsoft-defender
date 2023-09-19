@@ -19,10 +19,10 @@ module.exports = {
     key: '',
     passphrase: '',
     ca: '',
-    proxy: ""
+    proxy: ''
   },
   logging: {
-    level: 'info' //trace, debug, info, warn, error, fatal
+    level: 'trace' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
@@ -87,6 +87,26 @@ module.exports = {
       adminOnly: false
     },
     {
+      key: 'enableFileIsolation',
+      name: 'Enable File Isolation',
+      description:
+        "Enable File Isolation for Files found in Alerts",
+      default: false,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'enableMachinesIsolation',
+      name: 'Enable Machines Isolation',
+      description:
+        "Enable Machines Isolation for found Machines",
+      default: false,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
       key: 'ignoreClassifications',
       name: 'Ignore Classifications',
       description:
@@ -139,7 +159,8 @@ module.exports = {
     {
       key: 'createdLookbackDays',
       name: 'Created On Lookback Days',
-      description: 'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
+      description:
+        'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
       default: 60,
       type: 'number',
       userCanEdit: false,
