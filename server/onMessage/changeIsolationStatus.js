@@ -1,8 +1,6 @@
-const { reduce, flow, eq, first } = require('lodash/fp');
 const { parseErrorToReadableJson } = require('../dataTransformations');
 const { getLogger } = require('../logging');
 const { requestWithDefaults } = require('../request');
-const { get } = require('lodash');
 
 const changeIsolationStatus = async ({ newStatus, device }, options, callback) => {
   const Logger = getLogger();

@@ -75,38 +75,14 @@ const combineFoundAlertPropertiesWithAlerts = (alertsWithEntities) =>
           : null;
 
         const evidence = matchingFoundAlert
-          ? map((evidence) => {
-              const matchingFoundAlertEvidence = find(
-                (foundAlertEvidence) =>
-                  evidence.sha1 === get('fileDetails.sha1', foundAlertEvidence),
-                matchingFoundAlert.evidence
-              );
-
-              return {
-                ...evidence,
-                ...(matchingFoundAlertEvidence && {
-                  ...pick(
-                    [
-                      'remediationStatusDetails',
-                      'verdict',
-                      'tags',
-                      'roles',
-                      'imageFile',
-                      'parentProcessImageFile'
-                    ],
-                    matchingFoundAlertEvidence
-                  ),
-                  ...pick(
-                    ['filePublisher', 'signer', 'issuer', 'fileSize'],
-                    matchingFoundAlertEvidence.fileDetails
-                  )
-                })
-              };
-            }, alert.evidence)
+          ? matchAlertEvidenceFromSearchResults(alert, matchingFoundAlert)
           : alert.evidence;
+        
+        const foundFiles = filter((evidence) => evidence.entityType === 'File', evidence);
 
         return {
           ...alert,
+          foundFiles,
           ...(matchingFoundAlert && {
             ...pick(
               ['actorDisplayName', 'threatDisplayName', 'recommendedActions'],
@@ -119,5 +95,35 @@ const combineFoundAlertPropertiesWithAlerts = (alertsWithEntities) =>
     }),
     alertsWithEntities
   );
+
+const matchAlertEvidenceFromSearchResults = (alert, matchingFoundAlert) =>
+  map((evidence) => {
+    const matchingFoundAlertEvidence = find(
+      (foundAlertEvidence) =>
+        evidence.sha1 === get('fileDetails.sha1', foundAlertEvidence),
+      matchingFoundAlert.evidence
+    );
+
+    return {
+      ...evidence,
+      ...(matchingFoundAlertEvidence && {
+        ...pick(
+          [
+            'remediationStatusDetails',
+            'verdict',
+            'tags',
+            'roles',
+            'imageFile',
+            'parentProcessImageFile'
+          ],
+          matchingFoundAlertEvidence
+        ),
+        ...pick(
+          ['filePublisher', 'signer', 'issuer', 'fileSize'],
+          matchingFoundAlertEvidence.fileDetails
+        )
+      })
+    };
+  }, alert.evidence);
 
 module.exports = getAlerts;
