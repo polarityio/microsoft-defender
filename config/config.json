@@ -2,7 +2,7 @@
   "polarityIntegrationUuid": "a62b5600-de19-11ed-b27b-f9e5ad3171ca",
   "name": "Microsoft Defender",
   "acronym": "MS-DEF",
-  "description": "Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries",
+  "description": "Search for Alerts, Incidents, & Devices, along with the ability to run Advanced Threat Hunting Kusto Queries",
   "entityTypes": ["*"],
   "defaultColor": "light-blue",
   "styles": ["./client/styles.less"],
@@ -10,13 +10,7 @@
     "component": { "file": "./client/block.js" },
     "template": { "file": "./client/block.hbs" }
   },
-  "request": {
-    "cert": "",
-    "key": "",
-    "passphrase": "",
-    "ca": "",
-    "proxy": ""
-  },
+  "request": { "cert": "", "key": "", "passphrase": "", "ca": "", "proxy": "" },
   "logging": { "level": "info" },
   "options": [
     {
@@ -70,8 +64,26 @@
       "description": "Comma delimited list of Fields to not show from the Advanced Threat Hunting Results in the Overlay. This option must be set to \"User can view and edit\" or \"User can view only\".",
       "default": "",
       "type": "text",
-      "userCanEdit": true,
+      "userCanEdit": false,
       "adminOnly": false
+    },
+    {
+      "key": "enableFileIsolation",
+      "name": "Enable File Isolation",
+      "description": "Enable File Isolation for Files found in Alerts",
+      "default": false,
+      "type": "boolean",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "enableMachinesIsolation",
+      "name": "Enable Device Isolation",
+      "description": "Enable Device Isolation for found Device",
+      "default": false,
+      "type": "boolean",
+      "userCanEdit": false,
+      "adminOnly": true
     },
     {
       "key": "ignoreClassifications",
@@ -80,7 +92,7 @@
       "default": "",
       "type": "text",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "ignoreDeterminations",
@@ -89,7 +101,7 @@
       "default": "",
       "type": "text",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "ignoreSeverities",
@@ -98,7 +110,7 @@
       "default": "",
       "type": "text",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "ignoreStatuses",
@@ -107,7 +119,7 @@
       "default": "",
       "type": "text",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "ignoreServiceSources",
@@ -116,16 +128,16 @@
       "default": "",
       "type": "text",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "createdLookbackDays",
       "name": "Created On Lookback Days",
       "description": "The number of days from today which Incidents or Alerts results will be returned based on when it was Created.",
-      "type": "number",
       "default": 60,
+      "type": "number",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     }
   ]
 }

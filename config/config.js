@@ -2,7 +2,7 @@ module.exports = {
   name: 'Microsoft Defender',
   acronym: 'MS-DEF',
   description:
-    'Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries',
+    'Search for Alerts, Incidents, & Devices, along with the ability to run Advanced Threat Hunting Kusto Queries',
   entityTypes: ['*'],
   defaultColor: 'light-blue',
   styles: ['./client/styles.less'],
@@ -22,7 +22,7 @@ module.exports = {
     proxy: ''
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
@@ -98,9 +98,9 @@ module.exports = {
     },
     {
       key: 'enableMachinesIsolation',
-      name: 'Enable Machines Isolation',
+      name: 'Enable Device Isolation',
       description:
-        "Enable Machines Isolation for found Machines",
+        "Enable Device Isolation for found Device",
       default: false,
       type: 'boolean',
       userCanEdit: false,
