@@ -391,7 +391,7 @@
                       <button
                         {{action "quarantineFile" index foundFile}}
                         class="quarantine-file-button"
-                        disabled={{quarantineFileIsRunning}}
+                        disabled={{or quarantineFileIsRunning (get quarantineFileSuccessMessage index)}}
                       >
                         Quarantine File
                         {{#if quarantineFileIsRunning}}
@@ -899,61 +899,97 @@
           <div class="ml-2 alert-evidences">
             {{#each (take 5 alert.evidence) as |evidence evidenceIndex|}}
               <div class="alert-evidence">
+                {{#if evidence.entityType}}
+                  <div>
+                    <span class="p-key">Type: </span>
+                    <span class="p-value">{{titleize evidence.entityType}}</span>
+                  </div>
+                {{/if}}
                 {{#if evidence.verdict}}
                   <div>
                     <span class="p-key">Verdict: </span>
                     <span class="p-value">{{titleize evidence.verdict}}</span>
                   </div>
                 {{/if}}
-                {{#if evidence}}
-                  {{#if evidence.fileName}}
-                    <div>
-                      <span class="p-key">File Name: </span>
-                      <span class="p-value">{{evidence.fileName}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileSize}}
-                    <div>
-                      <span class="p-key">File Size: </span>
-                      <span class="p-value">{{evidence.fileSize}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.filePath}}
-                    <div>
-                      <span class="p-key">File Path: </span>
-                      <span class="p-value">{{evidence.filePath}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.filePublisher}}
-                    <div>
-                      <span class="p-key">File Publisher: </span>
-                      <span class="p-value">{{evidence.filePublisher}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.sha1}}
-                    <div>
-                      <span class="p-key">SHA1: </span>
-                      <span class="p-value">{{evidence.sha1}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.sha256}}
-                    <div>
-                      <span class="p-key">SHA256: </span>
-                      <span class="p-value">{{evidence.sha256}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.signer}}
-                    <div>
-                      <span class="p-key">Signer: </span>
-                      <span class="p-value">{{evidence.signer}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.issuer}}
-                    <div>
-                      <span class="p-key">Issuer: </span>
-                      <span class="p-value">{{evidence.issuer}}</span>
-                    </div>
-                  {{/if}}
+
+                {{#if evidence.url}}
+                  <div>
+                    <span class="p-key">URL: </span>
+                    <span class="p-value">{{evidence.url}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.ipAddress}}
+                  <div>
+                    <span class="p-key">IP Address: </span>
+                    <span class="p-value">{{evidence.ipAddress}}</span>
+                  </div>
+                {{/if}}
+
+                {{#if evidence.accountName}}
+                  <div>
+                    <span class="p-key">Account Name: </span>
+                    <span class="p-value">{{evidence.accountName}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.domainName}}
+                  <div>
+                    <span class="p-key">Domain Name: </span>
+                    <span class="p-value">{{evidence.domainName}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.userPrincipalName}}
+                  <div>
+                    <span class="p-value">{{evidence.userPrincipalName}}</span>
+                  </div>
+                {{/if}}
+
+                {{#if evidence.fileName}}
+                  <div>
+                    <span class="p-key">File Name: </span>
+                    <span class="p-value">{{evidence.fileName}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.fileSize}}
+                  <div>
+                    <span class="p-key">File Size: </span>
+                    <span class="p-value">{{evidence.fileSize}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.filePath}}
+                  <div>
+                    <span class="p-key">File Path: </span>
+                    <span class="p-value">{{evidence.filePath}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.filePublisher}}
+                  <div>
+                    <span class="p-key">File Publisher: </span>
+                    <span class="p-value">{{evidence.filePublisher}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.sha1}}
+                  <div>
+                    <span class="p-key">SHA1: </span>
+                    <span class="p-value">{{evidence.sha1}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.sha256}}
+                  <div>
+                    <span class="p-key">SHA256: </span>
+                    <span class="p-value">{{evidence.sha256}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.signer}}
+                  <div>
+                    <span class="p-key">Signer: </span>
+                    <span class="p-value">{{evidence.signer}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.issuer}}
+                  <div>
+                    <span class="p-key">Issuer: </span>
+                    <span class="p-value">{{evidence.issuer}}</span>
+                  </div>
                 {{/if}}
                 {{#if evidence.imageFile}}
                   {{#if evidence.imageFile.fileName}}
@@ -1312,19 +1348,19 @@
             {{fa-icon "spinner-third" fixedWidth=true spin=true}}
           {{else if device.deviceIsPending}}
             <div
-              class="device-isolation-status d-flex flex-row justify-content-between align-items-center"
+              class="device-isolation-status d-flex flex-row justify-content-start align-items-center"
             >
               <span>
                 Device Is Pending
-                {{#if (eq device.isExcluded true)}}
-                  Release from Isolation
-                {{else}}
+                {{#if (eq device.isPendingIsolation true)}}
                   Isolation
+                {{else}}
+                  Release from Isolation
                 {{/if}}
               </span>
               <button
                 {{action "checkIfDevicesIsolationIsPending" true index}}
-                class="change-isolation-button"
+                class="change-isolation-button refresh"
                 disabled={{checkIfDevicesIsolationIsPendingIsRunning}}
               >
                 Refresh
@@ -1353,7 +1389,11 @@
                 disabled={{changeIsolationStatusIsRunning}}
               >
                 Cancel
-                {{#if (eq device.isExcluded true)}}Release from Isolation{{else}}Isolation{{/if}}
+                {{#if (eq device.isPendingIsolation true)}}
+                  Isolation
+                {{else}}
+                  Release from Isolation
+                {{/if}}
                 {{#if changeIsolationStatusIsRunning}}
                   {{fa-icon "spinner-third" fixedWidth=true spin=true}}
                 {{/if}}
@@ -1364,7 +1404,7 @@
                 {{get changeIsolationStatusErrorMessage index}}
               </div>
             {{/if}}
-          {{else if (eq device.isExcluded true)}}
+          {{else if (eq device.deviceIsIsolated true)}}
             <div class="device-isolation-status">Device Is Isolated</div>
             <div>
               {{input
@@ -1393,7 +1433,7 @@
                 {{get changeIsolationStatusErrorMessage index}}
               </div>
             {{/if}}
-          {{else if (eq device.isExcluded false)}}
+          {{else if (eq device.deviceIsIsolated false)}}
             <div class="device-isolation-status">Device Is Not Isolated</div>
             <div>
               {{input

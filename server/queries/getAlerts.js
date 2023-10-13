@@ -1,4 +1,4 @@
-const { map, flatMap, reduce, pick, find, get } = require('lodash/fp');
+const { map, flatMap, reduce, filter, pick, find, get } = require('lodash/fp');
 const { requestsInParallel } = require('../request');
 const {
   createUniqRequestsWithMultipleEntities,

@@ -1,13 +1,32 @@
-const { parseErrorToReadableJson } = require('../dataTransformations');
+const { get } = require('lodash/fp');
+const { parseErrorToReadableJson, sleep } = require('../dataTransformations');
 const { getLogger } = require('../logging');
 const { requestWithDefaults } = require('../request');
+
+
 
 const changeIsolationStatus = async ({ newStatus, device }, options, callback) => {
   const Logger = getLogger();
   try {
-    const deviceWithNewStatus = await doIsolationStatusChangeByNewStatus[newStatus](
+    const newStatusRoute = newStatusRouteByNewStatus[newStatus](device);
+
+    const changedStatusResponse = get(
+      'body',
+      await requestWithDefaults({
+        method: 'POST',
+        site: 'defender',
+        route: newStatusRoute,
+        body: {
+          Comment: device.statusChangeComment || 'Change from Polarity',
+          ...(newStatusRoute === 'isolate' && { IsolationType: 'Full' })
+        },
+        options
+      })
+    );
+
+    const deviceWithNewStatus = changeDeviceStatusByNewStatus[newStatus](
       device,
-      options
+      changedStatusResponse
     );
 
     callback(null, { deviceWithNewStatus });
@@ -34,55 +53,34 @@ const changeIsolationStatus = async ({ newStatus, device }, options, callback) =
   }
 };
 
-const doIsolationStatusChangeByNewStatus = {
-  cancel: async (device, options) => {
-    await requestWithDefaults({
-      method: 'POST',
-      site: 'defender',
-      route: `machines/${device.id}/cancel`,
-      body: { Comment: device.statusChangeComment },
-      options
-    });
-    const [devicesWithPendingStatus] = await checkIfDevicesIsolationIsPending(
-      { devices: [device] },
-      options,
-      () => {}
-    );
-    return devicesWithPendingStatus;
-  },
-  releaseFromIsolation: async (device, options) => {
-    await requestWithDefaults({
-      method: 'POST',
-      site: 'defender',
-      route: `machines/${device.id}/unisolate`,
-      body: { Comment: device.statusChangeComment },
-      options
-    });
-    const [devicesWithPendingStatus] = await checkIfDevicesIsolationIsPending(
-      { devices: [device] },
-      options,
-      () => {}
-    );
-    return devicesWithPendingStatus;
-  },
-  isolate: async (device, options) => {
-    await requestWithDefaults({
-      method: 'POST',
-      site: 'defender',
-      route: `machines/${device.id}/isolate`,
-      body: {
-        Comment: device.statusChangeComment,
-        IsolationType: 'Full'
-      },
-      options
-    });
-    const [devicesWithPendingStatus] = await checkIfDevicesIsolationIsPending(
-      { devices: [device] },
-      options,
-      () => {}
-    );
-    return devicesWithPendingStatus;
-  }
+const newStatusRouteByNewStatus = {
+  cancel: (device) => `machineactions/${device.pendingActionId}/cancel`,
+  releaseFromIsolation: (device) => `machines/${device.id}/unisolate`,
+  isolate: (device) => `machines/${device.id}/isolate`
+};
+
+const changeDeviceStatusByNewStatus = {
+  cancel: (device, changedStatusResponse) => ({
+    ...device,
+    pendingActionId: undefined,
+    deviceIsPending: false,
+    isPendingIsolation: false,
+    deviceIsIsolated: changedStatusResponse.type === 'Unisolate'
+  }),
+  releaseFromIsolation: (device, changedStatusResponse) => ({
+    ...device,
+    pendingActionId: changedStatusResponse.id,
+    deviceIsPending: true,
+    isPendingIsolation: false,
+    deviceIsIsolated: true
+  }),
+  isolate: (device, changedStatusResponse) => ({
+    ...device,
+    pendingActionId: changedStatusResponse.id,
+    deviceIsPending: true,
+    isPendingIsolation: true,
+    deviceIsIsolated: false
+  })
 };
 
 module.exports = changeIsolationStatus;

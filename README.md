@@ -4,13 +4,13 @@
 
 Microsoft 365 Defender is a unified pre- and post-breach enterprise defense suite that natively coordinates detection, prevention, investigation, and response across endpoints, identities, email, and applications to provide integrated protection against sophisticated attacks.
 
-The Polarity Microsoft 365 Defender Integration allows you to search for Emails assigned to Alerts and Incidents, along with the ability to run Advanced Threat Hunting Kusto Queries on all entity types from Microsoft 365 Defender.
+The Polarity Microsoft 365 Defender Integration allows you to search for Emails assigned to Alerts, Incidents, and Devices, along with the ability to run Advanced Threat Hunting Kusto Queries on all entity types from Microsoft 365 Defender.
 
 You can also optionally enable Device Isolation and File Quarantine for Device and Alert Found Files.
 
 To learn more about Microsoft 365 Defender, visit the [official website](https://learn.microsoft.com/en-us/microsoft-365/security/defender/microsoft-365-defender?view=o365-worldwide).
 
-> ***NOTE:*** The permissions required on your `App Registration` which you obtain your `Client/Application ID`, `Tenant/Directory ID`, & `Client Secret` User Options from need to be `SecurityIncident.Read.All`, `ThreatHunting.Read.All`, `User.Read`, & `Machine.ReadWrite.All`.
+> ***NOTE:*** The `app permissions` required on your `App Registration` which you obtain your `Client/Application ID`, `Tenant/Directory ID`, & `Client Secret` User Options from need to be `SecurityIncident.Read.All`, `ThreatHunting.Read.All`, `User.Read`, & `Machine.ReadWrite.All`.
 > If you are using Device Isolation you'll need to add the API Permissions `Machine.Isolate`, and for File Quarantine you'll need to add `Machine.StopAndQuarantine`.
 
 

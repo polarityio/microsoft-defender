@@ -5,8 +5,12 @@ polarity.export = PolarityComponent.extend({
   }),
   activeTab: '',
   expandableTitleStates: Ember.computed.alias('block._state.expandableTitleStates'),
-  quarantineFileSuccessMessage: Ember.computed.alias('block._state.quarantineFileSuccessMessage'),
-  quarantineFileErrorMessage: Ember.computed.alias('block._state.quarantineFileErrorMessage'),
+  quarantineFileSuccessMessage: Ember.computed.alias(
+    'block._state.quarantineFileSuccessMessage'
+  ),
+  quarantineFileErrorMessage: Ember.computed.alias(
+    'block._state.quarantineFileErrorMessage'
+  ),
   changeIsolationStatusErrorMessage: Ember.computed.alias(
     'block._state.changeIsolationStatusErrorMessage'
   ),
@@ -71,11 +75,11 @@ polarity.export = PolarityComponent.extend({
 
       this.get('block').notifyPropertyChange('data');
     },
-    changeIsolationStatus: function (newStatus, deviceIndex) {
-      this.changeIsolationStatus(newStatus, deviceIndex);
-    },
     checkIfDevicesIsolationIsPending: function (showCheckmark, index) {
       this.checkIfDevicesIsolationIsPending(showCheckmark, index);
+    },
+    changeIsolationStatus: function (newStatus, deviceIndex) {
+      this.changeIsolationStatus(newStatus, deviceIndex);
     }
   },
   checkIfDevicesIsolationIsPending: function (showCheckmark, index) {
@@ -105,7 +109,6 @@ polarity.export = PolarityComponent.extend({
   changeIsolationStatus: function (newStatus, deviceIndex) {
     this.set('changeIsolationStatusIsRunning', true);
     const devices = this.get('details.devices');
-
     this.sendIntegrationMessage({
       action: 'changeIsolationStatus',
       data: {
@@ -114,11 +117,7 @@ polarity.export = PolarityComponent.extend({
       }
     })
       .then(({ deviceWithNewStatus }) => {
-        this.set('devices', [
-          ...devices.slice(0, deviceIndex),
-          Object.assign({}, deviceWithNewStatus),
-          ...devices.slice(deviceIndex + 1, devices.length)
-        ]);
+        this.set(`details.devices.${deviceIndex}`, deviceWithNewStatus);
       })
       .catch((err) => {
         this.set(
@@ -132,7 +131,7 @@ polarity.export = PolarityComponent.extend({
       })
       .finally(() => {
         this.set('changeIsolationStatusIsRunning', false);
-        this.set(`block.devices.${deviceIndex}.statusChangeComment`, '');
+        this.set(`details.devices.${deviceIndex}.statusChangeComment`, '');
         this.get('block').notifyPropertyChange('data');
 
         setTimeout(() => {
