@@ -1,4 +1,4 @@
-const { map, flatMap, reduce, filter, pick, find, get } = require('lodash/fp');
+const { map, flatMap, reduce, filter, pick, find, get, flow } = require('lodash/fp');
 const { requestsInParallel } = require('../request');
 const {
   createUniqRequestsWithMultipleEntities,
@@ -77,8 +77,11 @@ const combineFoundAlertPropertiesWithAlerts = (alertsWithEntities) =>
         const evidence = matchingFoundAlert
           ? matchAlertEvidenceFromSearchResults(alert, matchingFoundAlert)
           : alert.evidence;
-        
-        const foundFiles = filter((evidence) => evidence.entityType === 'File', evidence);
+
+        const foundFiles = flow(
+          filter((evidence) => evidence.entityType === 'File'),
+          map((foundFile) => ({ ...foundFile, quarantineComment: '' }))
+        )(evidence);
 
         return {
           ...alert,

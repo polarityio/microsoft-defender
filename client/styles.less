@@ -207,7 +207,8 @@ div.pre-container {
   margin-top: 10px;
 }
 
-.change-isolation-button {
+.change-isolation-button,
+.quarantine-file-button {
   margin-right: 10px;
   margin-top: 7px !important;
   margin-bottom: 0;
@@ -228,10 +229,25 @@ div.pre-container {
     margin-left: 10px;
     margin-bottom: 6px;
   }
+  &:hover {
+    background-color: #007dda;
+  }
+  &:active {
+    background-color: #0161aa;
+  }
+  &:disabled {
+    background-color: gray;
+    &:hover {
+      background-color: gray;
+    }
+  }
 }
 
 .input-field {
   margin-top: 10px;
   padding: 3px 6px 3px 6px;
   font-size: 13px;
+  &.quarantine {
+    margin-top: 7px;
+  }
 }

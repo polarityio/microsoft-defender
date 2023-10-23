@@ -8,6 +8,9 @@ polarity.export = PolarityComponent.extend({
   quarantineFileSuccessMessage: Ember.computed.alias(
     'block._state.quarantineFileSuccessMessage'
   ),
+  quarantineFileIsRunning: Ember.computed.alias(
+    'block._state.quarantineFileIsRunning'
+  ),
   quarantineFileErrorMessage: Ember.computed.alias(
     'block._state.quarantineFileErrorMessage'
   ),
@@ -38,8 +41,27 @@ polarity.export = PolarityComponent.extend({
     if (!this.get('block._state')) {
       this.set('block._state', {});
       this.set('block._state.changeIsolationStatusErrorMessage', {});
-      this.set('block._state.quarantineFileSuccessMessage', {});
-      this.set('block._state.quarantineFileErrorMessage', {});
+      this.set(
+        'block._state.quarantineFileSuccessMessage',
+        details.alerts.reduce(
+          (acc, _, alertIndex) => Object.assign(acc, { [alertIndex]: {} }),
+          {}
+        )
+      );
+      this.set(
+        'block._state.quarantineFileIsRunning',
+        details.alerts.reduce(
+          (acc, _, alertIndex) => Object.assign(acc, { [alertIndex]: {} }),
+          {}
+        )
+      );
+      this.set(
+        'block._state.quarantineFileErrorMessage',
+        details.alerts.reduce(
+          (acc, _, alertIndex) => Object.assign(acc, { [alertIndex]: {} }),
+          {}
+        )
+      );
       this.set('block._state.showRefreshCheckmark', {});
       this.set('block._state.expandableTitleStates', {
         kustoQueryResults: {
@@ -80,6 +102,9 @@ polarity.export = PolarityComponent.extend({
     },
     changeIsolationStatus: function (newStatus, deviceIndex) {
       this.changeIsolationStatus(newStatus, deviceIndex);
+    },
+    quarantineFile: function (alertIndex, fileIndex) {
+      this.quarantineFile(alertIndex, fileIndex);
     }
   },
   checkIfDevicesIsolationIsPending: function (showCheckmark, index) {
@@ -140,24 +165,30 @@ polarity.export = PolarityComponent.extend({
         }, 5000);
       });
   },
-  quarantineFile: function (alertIndex, file) {
-    this.set('quarantineFileIsRunning', true);
-    const alerts = this.get('details.alerts');
+  quarantineFile: function (alertIndex, fileIndex) {
+    this.set(`block._state.quarantineFileIsRunning.${alertIndex}.${fileIndex}`, true);
+    const alert = this.get(`details.alerts.${alertIndex}`);
 
     this.sendIntegrationMessage({
       action: 'quarantineFile',
       data: {
-        alert: alerts[alertIndex],
-        file
+        alert,
+        file: alert.foundFiles[fileIndex]
       }
     })
       .then(({ quarantineSuccessMessage }) => {
-        this.set(`quarantineFileSuccessMessage.${alertIndex}`, quarantineSuccessMessage);
-        this.set(`block.alerts.${alertIndex}.quarantineComment`, '');
+        this.set(
+          `block._state.quarantineFileSuccessMessage.${alertIndex}.${fileIndex}`,
+          quarantineSuccessMessage
+        );
+        this.set(
+          `details.alerts.${alertIndex}.foundFiles.${fileIndex}.quarantineComment`,
+          ''
+        );
       })
       .catch((err) => {
         this.set(
-          `quarantineFileErrorMessage.${alertIndex}`,
+          `block._state.quarantineFileErrorMessage.${alertIndex}.${fileIndex}`,
           `Failed to Quarantine File: ${
             (err &&
               (err.detail || err.message || err.err || err.title || err.description)) ||
@@ -166,11 +197,17 @@ polarity.export = PolarityComponent.extend({
         );
       })
       .finally(() => {
-        this.set('quarantineFileIsRunning', false);
+        this.set(
+          `block._state.quarantineFileIsRunning.${alertIndex}.${fileIndex}`,
+          false
+        );
         this.get('block').notifyPropertyChange('data');
 
         setTimeout(() => {
-          this.set(`quarantineFileErrorMessage.${alertIndex}`, '');
+          this.set(
+            `block._state.quarantineFileErrorMessage.${alertIndex}.${fileIndex}`,
+            ''
+          );
           this.get('block').notifyPropertyChange('data');
         }, 5000);
       });
