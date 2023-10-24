@@ -90,21 +90,21 @@ module.exports = {
       key: 'enableFileIsolation',
       name: 'Enable File Isolation',
       description:
-        "Enable File Isolation for Files found in Alerts",
+        "Enable File Isolation for Files found in Alerts. This option must be set to \"Users can view only\"",
       default: false,
       type: 'boolean',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'enableMachinesIsolation',
       name: 'Enable Device Isolation',
       description:
-        "Enable Device Isolation for found Device",
+        "Enable Device Isolation for found Device. This option must be set to \"Users can view only\"",
       default: false,
       type: 'boolean',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'ignoreClassifications',
