@@ -70,20 +70,20 @@
     {
       "key": "enableFileIsolation",
       "name": "Enable File Isolation",
-      "description": "Enable File Isolation for Files found in Alerts",
+      "description": "Enable File Isolation for Files found in Alerts. This option must be set to \"Users can view only\".",
       "default": false,
       "type": "boolean",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "enableMachinesIsolation",
       "name": "Enable Device Isolation",
-      "description": "Enable Device Isolation for found Device",
+      "description": "Enable Device Isolation for found Device. This option must be set to \"Users can view only\".",
       "default": false,
       "type": "boolean",
       "userCanEdit": false,
-      "adminOnly": true
+      "adminOnly": false
     },
     {
       "key": "ignoreClassifications",
