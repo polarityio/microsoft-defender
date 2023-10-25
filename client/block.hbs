@@ -727,14 +727,16 @@
               </div>
               {{#if (and block.userOptions.enableFileIsolation foundFile.sha1)}}
                   <div class="mb-3">
-                    <div>
+                    <div class="input-container mt-2">
+                      <label class="small ifta-label">
+                        Quarantine Comment
+                      </label>
                       {{input
                         type="text"
-                        class="input-field quarantine"
-                        placeholder="Quarantine Comment"
-                        input=(action (mut foundFile.quarantineComment) value="target.value")
+                        class="ifta-field"
                         value=foundFile.quarantineComment
-                        disable=(get (get quarantineFileIsRunning alertIndex) foundFileIndex)
+                        input=(action (mut foundFile.quarantineComment) value="target.value")
+                        disabled=(get (get quarantineFileIsRunning alertIndex) foundFileIndex)
                       }}
                     </div>
                     <div
@@ -1365,21 +1367,23 @@
               >
                 Refresh
                 {{#if (get showRefreshCheckmark index)}}
-                  {{fa-icon "check" fixedWidth=true}}
+                  {{fa-icon icon="check" fixedWidth=true}}
                 {{/if}}
                 {{#if checkIfDevicesIsolationIsPendingIsRunning}}
-                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
                 {{/if}}
               </button>
             </div>
-            <div>
+            <div class="input-container">
+              <label class="small ifta-label">
+                Cancellation Comment
+              </label>
               {{input
                 type="text"
-                class="input-field"
-                placeholder="Cancellation Comment"
+                class="ifta-field"
                 input=(action (mut device.statusChangeComment) value="target.value")
                 value=device.statusChangeComment
-                disable=changeIsolationStatusIsRunning
+                disabled=changeIsolationStatusIsRunning
               }}
             </div>
             <div class="d-flex flex-row justify-content-between align-items-center">
@@ -1395,7 +1399,7 @@
                   Release from Isolation
                 {{/if}}
                 {{#if changeIsolationStatusIsRunning}}
-                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
                 {{/if}}
               </button>
             </div>
@@ -1406,14 +1410,16 @@
             {{/if}}
           {{else if (eq device.deviceIsIsolated true)}}
             <div class="device-isolation-status">Device Is Isolated</div>
-            <div>
+            <div class="input-container mt-2">
+              <label class="small ifta-label">
+                Release Isolation Comment
+              </label>
               {{input
                 type="text"
-                class="input-field"
-                placeholder="UnIsolation Comment"
+                class="ifta-field"
                 input=(action (mut device.statusChangeComment) value="target.value")
                 value=device.statusChangeComment
-                disable=changeIsolationStatusIsRunning
+                disabled=changeIsolationStatusIsRunning
               }}
             </div>
             <div class="d-flex flex-row justify-content-between align-items-center">
@@ -1424,7 +1430,7 @@
               >
                 Release Device from Isolation
                 {{#if changeIsolationStatusIsRunning}}
-                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
                 {{/if}}
               </button>
             </div>
@@ -1435,14 +1441,16 @@
             {{/if}}
           {{else if (eq device.deviceIsIsolated false)}}
             <div class="device-isolation-status">Device Is Not Isolated</div>
-            <div>
+            <div class="input-container mt-2">
+              <label class="small ifta-label">
+                Isolation Comment
+              </label>
               {{input
                 type="text"
-                class="input-field"
-                placeholder="Isolation Comment"
-                input=(action (mut device.statusChangeComment) value="target.value")
+                class="ifta-field"
                 value=device.statusChangeComment
-                disable=changeIsolationStatusIsRunning
+                input=(action (mut device.statusChangeComment) value="target.value")
+                disabled=changeIsolationStatusIsRunning
               }}
             </div>
             <div class="d-flex flex-row justify-content-between align-items-center">
@@ -1453,7 +1461,7 @@
               >
                 Isolate Device
                 {{#if changeIsolationStatusIsRunning}}
-                  {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
                 {{/if}}
               </button>
             </div>
