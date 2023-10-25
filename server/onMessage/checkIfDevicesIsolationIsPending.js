@@ -56,7 +56,7 @@ const checkIfDevicesIsolationIsPending = async ({ devices }, options, callback) 
     Logger.error(
       {
         detail: 'Failed Getting Device Status Lookup',
-        options,
+        devices,
         formattedError: err
       },
       'Getting Device Status Lookup Failed'

@@ -37,7 +37,6 @@ const changeIsolationStatus = async ({ newStatus, device }, options, callback) =
         detail: 'Failed Changing Device Isolation Status Lookup',
         newStatus,
         device,
-        options,
         formattedError: err
       },
       'Changing Device Isolation Status Lookup Failed'

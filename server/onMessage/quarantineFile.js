@@ -26,7 +26,6 @@ const quarantineFile = async ({ alert, file }, options, callback) => {
         detail: 'Failed Changing Device Isolation Status Lookup',
         alert,
         file,
-        options,
         formattedError: err
       },
       'Changing Device Isolation Status Lookup Failed'
