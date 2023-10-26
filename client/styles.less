@@ -1,3 +1,9 @@
+@red: #FF4559;
+@green: #7bc942;
+@dark-green: #63a830;
+@blue: #0078d4;
+@light-blue: #55b5ff26;
+
 .external-link-icon {
   font-size: 8px;
   margin-bottom: 1px;
@@ -18,10 +24,12 @@
   svg.context-icon {
     font-size: 12px;
   }
+
   &.submission-options {
     margin-top: 15px !important;
   }
 }
+
 h1.p-title {
   text-decoration: underline;
   margin-bottom: 5px;
@@ -29,6 +37,7 @@ h1.p-title {
 
 .p-value {
   word-break: normal;
+
   &.break-all {
     word-break: break-all;
   }
@@ -38,6 +47,7 @@ div.link-container {
   margin-top: 10px;
   margin-bottom: 7px;
 }
+
 .no-style-button {
   font-size: 100%;
   font-family: inherit;
@@ -108,6 +118,7 @@ div.link-container {
 
     .tag-close-icon {
       font-size: 9px;
+
       &:hover {
         color: #ff0000;
       }
@@ -131,6 +142,7 @@ a.tag {
     display: inline-block;
     font-weight: normal;
   }
+
   .summary-source {
     background-color: #e4e5e6;
     padding: 7px;
@@ -140,6 +152,7 @@ a.tag {
     display: inline-block;
     font-weight: 600;
   }
+
   span {
     .tag-close-icon {
       font-size: 10px;
@@ -158,6 +171,7 @@ a.tag {
   justify-content: space-between;
   align-items: center;
   padding-top: 10px;
+
   & > button {
     color: #5ccd18 !important;
     padding-right: 5px;
@@ -171,9 +185,11 @@ a.tag {
   font-weight: 600;
   margin-bottom: 7px;
   margin-top: 5px;
+
   .text {
     color: #5ccd18 !important;
     border-bottom: 1px solid #5ccd18;
+
     .desc {
       color: black !important;
       font-weight: 400 !important;
@@ -198,6 +214,245 @@ pre {
 
 div.pre-container {
   overflow-x: auto;
-
 }
 
+.device-isolation-status {
+  color: gray;
+  font-size: 14px;
+  margin-left: 2px;
+  margin-top: 10px;
+}
+
+.change-isolation-button,
+.quarantine-file-button {
+  margin-right: 10px;
+  margin-top: 7px !important;
+  margin-bottom: 0;
+  margin-left: 0;
+
+  height: inherit;
+  padding: 9px 20px 9px 20px;
+
+  color: #fff;
+  background-color: #0078d4;
+  border: 0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 100px;
+
+  &.refresh {
+    display: inline-block;
+    margin-left: 10px;
+    margin-bottom: 6px;
+  }
+
+  &:hover {
+    background-color: #007dda;
+  }
+
+  &:active {
+    background-color: #0161aa;
+  }
+
+  &:disabled {
+    background-color: gray;
+
+    &:hover {
+      background-color: gray;
+    }
+  }
+}
+
+.input-field {
+  margin-top: 10px;
+  padding: 3px 6px 3px 6px;
+  font-size: 13px;
+
+  &.quarantine {
+    margin-top: 7px;
+  }
+}
+
+
+.input-container {
+  width: 100%;
+  position: relative;
+
+  .email-input-container {
+    border-radius: 6px;
+    margin: 0 0 15px;
+    width: 100%;
+    border: 1px solid #ccc;
+    line-height: 12px;
+
+    &.error {
+      border-color: @red;
+    }
+
+    &:focus-within {
+      -webkit-appearance: none;
+      outline: none;
+      color: #000000;
+      border-color: @blue;
+      box-shadow: 0 0 0 0.2rem @light-blue;
+    }
+
+    input {
+      flex: 1 1 auto;
+      border: none;
+      margin-bottom: 0;
+      padding: 15px 0px 5px 10px;
+
+      &.ifta-field:focus {
+        box-shadow: none;
+        border-color: inherit;
+        color: inherit;
+        outline: inherit;
+        -webkit-appearance: inherit;
+      }
+    }
+
+    .at-sign-container {
+      flex: 0 0 20px;
+      text-align: center;
+      height: 100%;
+      line-height: 100%;
+      margin-top: 9px;
+      font-weight: bold;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    .recipient-domain-container {
+      flex: 1 1 auto;
+      margin-right: 3px;
+
+      .ifta-domain-single {
+        margin-top: 9px;
+        padding-right: 5px;
+      }
+
+      .ifta-domain-field {
+        border: 1px solid #eee;
+        padding: 0px 2px;
+        border-radius: 4px;
+        margin-top: 9px;
+      }
+    }
+  }
+
+  &.text-area-container {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    z-index: 1;
+
+    &:focus-within {
+      -webkit-appearance: none;
+      outline: none;
+      color: #000000;
+      border-color: @blue;
+      box-shadow: 0 0 0 0.2rem @light-blue;
+    }
+
+    &.error {
+      border-color: @red;
+
+      &:focus-within {
+        border-color: @blue !important;
+      }
+    }
+
+    textarea {
+      margin: 0px 10px 10px 10px;
+      border: none;
+      outline: none;
+      box-shadow: none;
+      padding: 0px;
+      width: calc(100% - 20px);
+
+      &.ifta-field:focus {
+        -webkit-appearance: none;
+        outline: none;
+        box-shadow: none;
+      }
+    }
+
+    label {
+      padding: 3px 10px 5px;
+      margin: 0px;
+    }
+  }
+
+  label {
+    display: block;
+
+    .required {
+      color: @red;
+    }
+  }
+
+  textarea::placeholder, input::placeholder {
+    color: #dfdfdf;
+  }
+
+  textarea:focus::placeholder, input:focus::placeholder {
+    color: transparent;
+  }
+
+  input {
+    cursor: text;
+  }
+
+  .ifta-label {
+    margin-bottom: -15px;
+    z-index: 1;
+    position: relative;
+    padding: 0px 10px 0 10px;
+    pointer-events: none;
+  }
+
+  .ifta-field {
+    border: 0;
+    border-radius: 6px;
+    padding: 15px 10px 5px;
+    margin: 0;
+    width: 100%;
+    border: 1px solid #ccc;
+    line-height: 12px;
+    height: 38px;
+
+    &.error {
+      border-color: @red;
+    }
+  }
+
+  .ifta-field:focus {
+    -webkit-appearance: none;
+    outline: none;
+    color: #000000;
+    border-color: @blue;
+    box-shadow: 0 0 0 0.2rem @light-blue;
+  }
+
+  select.ifta-field {
+    -webkit-appearance: none;
+    outline: none;
+    line-height: 16px;
+  }
+
+  &:focus-within label {
+    color: darken(@blue, 25%) !important;
+  }
+
+  .select-arrow {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+  }
+
+  input:disabled, select:disabled, textarea:disabled, &.text-area-container.disabled {
+    background-color: #f6f6f3 !important;
+  }
+}

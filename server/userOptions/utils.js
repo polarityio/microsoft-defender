@@ -66,29 +66,44 @@ const splitKeyValueCommaSeparatedUserOptionThenFirst = (key, options) =>
     ([keys, values]) => zipObject(keys, values)
   )(options);
 
-const validateUrlOption = ({ value: url }, otherErrors = []) => {
-  const endWithError =
-    url && url.endsWith('//')
-      ? otherErrors.concat({
-          key: 'url',
-          message: 'Your Url must not end with a //'
-        })
-      : otherErrors;
-  if (endWithError.length) return endWithError;
+const validateUrlOption = (options, urlKey = 'url', otherValidationErrors = []) => {
+  const urlValue = get([urlKey, 'value'], options);
 
-  if (url) {
+  if (urlValue === undefined) {
+    throw new Error(
+      `User Option key \`${urlKey}\` is not defined in the config.js.  ` +
+        "It's also possible you need to change the package.json version for the client to pick up your `config/config.js` changes."
+    );
+  }
+
+  let allValidationErrors = otherValidationErrors;
+  if (!urlValue) {
+    allValidationErrors = allValidationErrors.concat({
+      key: urlKey,
+      message: '* Required'
+    });
+  }
+
+  if (urlValue.endsWith('//')) {
+    allValidationErrors = allValidationErrors.concat({
+      key: urlKey,
+      message: 'Url cannot end with a //'
+    });
+  }
+
+  if (urlValue) {
     try {
-      new URL(url);
+      new URL(urlValue);
     } catch (_) {
-      return otherErrors.concat({
-        key: 'url',
+      allValidationErrors = allValidationErrors.concat({
+        key: urlKey,
         message:
-          'What is currently provided is not a valid URL. You must provide a valid Instance URL.'
+          'What is currently provided is not a valid URL. A valid Instance URL is Required.'
       });
     }
   }
 
-  return otherErrors;
+  return allValidationErrors;
 };
 
 module.exports = {

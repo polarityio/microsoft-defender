@@ -1,6 +1,5 @@
 const { ConfidentialClientApplication } = require('@azure/msal-node');
-const { get, flow, pick, join, concat, values } = require('lodash/fp');
-const { mapObject } = require('../dataTransformations');
+const { get, flow, pick, join, values, concat } = require('lodash/fp');
 
 const NodeCache = require('node-cache');
 const clientCache = new NodeCache();
@@ -9,14 +8,22 @@ const tokenCache = new NodeCache({
 });
 
 const microsoftGraphApiUrl = 'https://graph.microsoft.com/';
-const microsoftSecurityApiUrl = `${microsoftGraphApiUrl}v1.0/security/`;
+const microsoft365DefenderUrl = 'https://api.securitycenter.microsoft.com/';
+const requestUrlsBySite = {
+  graph: `${microsoftGraphApiUrl}v1.0/security/`,
+  defender: `${microsoft365DefenderUrl}api/`
+};
+const scopesBySite = {
+  graph: `${microsoftGraphApiUrl}.default`,
+  defender: `${microsoft365DefenderUrl}.default`
+};
 
-const authenticateRequest = async ({ route, options, ...requestOptions }) => {
-  const accessToken = await getToken(options);
+const authenticateRequest = async ({ site, route, options, ...requestOptions }) => {
+  const accessToken = await getToken(options, site);
 
   return {
     ...requestOptions,
-    url: microsoftSecurityApiUrl + route,
+    url: requestUrlsBySite[site] + route,
     headers: {
       ...requestOptions.headers,
       Authorization: `Bearer ${accessToken}`
@@ -24,16 +31,17 @@ const authenticateRequest = async ({ route, options, ...requestOptions }) => {
   };
 };
 
-const getToken = async (options) => {
+const getToken = async (options, site) => {
   const clientCacheId = flow(
     pick(['clientId', 'tenantId', 'clientSecret']),
     values,
+    concat(site),
     join('')
   )(options);
 
   const client = await getClient(clientCacheId, options);
 
-  const accessToken = await getAccessToken(clientCacheId, client);
+  const accessToken = await getAccessToken(clientCacheId, client, site);
 
   return accessToken;
 };
@@ -54,12 +62,14 @@ const getClient = async (clientCacheId, options) => {
   return client;
 };
 
-const getAccessToken = async (clientCacheId, client) => {
+const getAccessToken = async (clientCacheId, client, site) => {
   let accessToken = tokenCache.get(clientCacheId);
   if (!accessToken) {
     accessToken = get(
       'accessToken',
-      await client.acquireTokenByClientCredential({ scopes: [`${microsoftGraphApiUrl}.default`] })
+      await client.acquireTokenByClientCredential({
+        scopes: [scopesBySite[site]]
+      })
     );
 
     tokenCache.set(clientCacheId, accessToken);

@@ -10,6 +10,7 @@ const {
 
 const searchEntities = require('./server/searchEntities');
 const assembleLookupResults = require('./server/assembleLookupResults');
+const onMessageFunctions = require('./server/onMessage');
 
 const doLookup = async (entities, userOptions, cb) => {
   const Logger = getLogger();
@@ -20,17 +21,18 @@ const doLookup = async (entities, userOptions, cb) => {
 
     const options = parseUserOptions(userOptions);
 
-    const { alerts, incidents, kustoQueryResults } = await searchEntities(
+    const { alerts, incidents, devices, kustoQueryResults } = await searchEntities(
       searchableEntities,
       options
     );
 
-    Logger.trace({ alerts, incidents, kustoQueryResults });
+    Logger.trace({ alerts, incidents, devices, kustoQueryResults });
 
     const lookupResults = assembleLookupResults(
       entities,
       alerts,
       incidents,
+      devices,
       kustoQueryResults,
       options
     );
@@ -47,8 +49,12 @@ const doLookup = async (entities, userOptions, cb) => {
   }
 };
 
+const onMessage = ({ action, data: actionParams }, options, callback) =>
+  onMessageFunctions[action](actionParams, options, callback);
+
 module.exports = {
   startup: setLogger,
   validateOptions,
-  doLookup
+  doLookup,
+  onMessage
 };

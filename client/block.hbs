@@ -21,6 +21,20 @@
       </a>
     </li>
   {{/if}}
+  {{#if (get details "devices" "length")}}
+    <li class="nav-item">
+      <a
+        {{action "changeTab" "devices"}}
+        class="nav-link {{if (eq activeTab 'devices') 'active'}}"
+        href="#"
+      >
+        {{get displayTabNames "devices"}}
+        {{#if checkIfDevicesIsolationIsPendingIsRunning}}
+          {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+        {{/if}}
+      </a>
+    </li>
+  {{/if}}
   {{#if (get details "kustoQueryResults" "length")}}
     <li class="nav-item">
       <a
@@ -130,7 +144,7 @@
               Comments</span>
             {{fa-icon icon="angle-up"}}
           </a>
-          <div class="incident-comments">
+          <div class="ml-2 incident-comments">
             {{#each (take 7 incident.comments) as |comment|}}
               <span class="tag link-tag d-inline-flex align-items-center">
                 <span class="text-container summary-source">
@@ -174,7 +188,7 @@
 
 {{#if (eq activeTab "alerts")}}
   <br />
-  {{#each details.alerts as |alert index|}}
+  {{#each details.alerts as |alert alertIndex|}}
     <div class="alert-content">
       {{#if alert.title}}
         <h1 class="p-title">
@@ -182,24 +196,44 @@
           {{alert.title}}
         </h1>
       {{/if}}
-      {{#if alert.alertWebUrl}}
+      {{#if alert.id}}
         <div class="link-container">
-          <a class="p-link" href={{alert.alertWebUrl}}>
+          <a class="p-link" href="https://security.microsoft.com/alerts/{{alert.id}}">
             View Alert in Defender
             {{fa-icon icon="external-link-square" class="external-link-icon"}}
           </a>
         </div>
       {{/if}}
-      {{#if alert.incidentWebUrl}}
+      {{#if alert.incidentId}}
         <div class="link-container">
-          <a class="p-link" href={{alert.incidentWebUrl}}>
+          <a
+            class="p-link"
+            href="https://security.microsoft.com/incidents/{{alert.incidentId}}"
+          >
             View Related Incident in Defender
+            {{fa-icon icon="external-link-square" class="external-link-icon"}}
+          </a>
+        </div>
+      {{/if}}
+      {{#if device.id}}
+        <div class="link-container">
+          <a
+            class="p-link"
+            href="https://security.microsoft.com/machines/v2/{{alert.machineId}}/overview"
+          >
+            View Device in Defender
             {{fa-icon icon="external-link-square" class="external-link-icon"}}
           </a>
         </div>
       {{/if}}
       {{#if alert.description}}
         <div class="p-block mb-1">{{alert.description}}</div>
+      {{/if}}
+      {{#if alert.computerDnsName}}
+        <div>
+          <span class="p-key">Device Name: </span>
+          <span class="p-value">{{uppercase alert.computerDnsName}}</span>
+        </div>
       {{/if}}
       {{#if alert.status}}
         <div>
@@ -267,6 +301,12 @@
           <span class="p-value">{{alert.threatDisplayName}}</span>
         </div>
       {{/if}}
+      {{#if alert.threatName}}
+        <div>
+          <span class="p-key">Threat Name: </span>
+          <span class="p-value">{{alert.threatName}}</span>
+        </div>
+      {{/if}}
       {{#if alert.threatFamilyName}}
         <div>
           <span class="p-key">Threat Family Name: </span>
@@ -279,31 +319,31 @@
           <span class="p-value">{{join ", " alert.mitreTechniques}}</span>
         </div>
       {{/if}}
-      {{#if alert.createdDateTime}}
+      {{#if alert.alertCreationTime}}
         <div>
           <span class="p-key">Created DateTime: </span>
           <span class="p-value">{{moment-format
-              alert.createdDateTime
+              alert.alertCreationTime
               "MM/DD/YYYY HH:mm:ss"
               timeZone=timezone
             }}</span>
         </div>
       {{/if}}
-      {{#if alert.lastUpdateDateTime}}
+      {{#if alert.lastUpdateTime}}
         <div>
           <span class="p-key">Last Updated DateTime: </span>
           <span class="p-value">{{moment-format
-              alert.lastUpdateDateTime
+              alert.lastUpdateTime
               "MM/DD/YYYY HH:mm:ss"
               timeZone=timezone
             }}</span>
         </div>
       {{/if}}
-      {{#if alert.resolvedDateTime}}
+      {{#if alert.resolvedTime}}
         <div>
           <span class="p-key">Resolved DateTime: </span>
           <span class="p-value">{{moment-format
-              alert.resolvedDateTime
+              alert.resolvedTime
               "MM/DD/YYYY HH:mm:ss"
               timeZone=timezone
             }}</span>
@@ -315,12 +355,440 @@
           <span class="p-value">{{alert.actorDisplayName}}</span>
         </div>
       {{/if}}
-      {{#if alert.comments.length}}
-        {{#if (get (get expandableTitleStates "alertComments") index)}}
+      {{#if alert.foundFiles.length}}
+        {{#if (get (get expandableTitleStates "alertFoundFiles") alertIndex)}}
           <a
             href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" index "alertComments")}}
+            {{on "click" (action "toggleExpandableTitle" alertIndex "alertFoundFiles")}}
+          >
+            <span class="text">{{fa-icon
+                icon="file"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Found Files</span>
+            {{fa-icon icon="angle-up"}}
+          </a>
+          <div class="ml-2 alert-found-files">
+            {{#each alert.foundFiles as |foundFile foundFileIndex|}}
+              <div class="alert-found-file">
+                {{#if foundFile.verdict}}
+                  <div>
+                    <span class="p-key">Verdict: </span>
+                    <span class="p-value">{{titleize foundFile.verdict}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile}}
+                  {{#if foundFile.fileName}}
+                    <div>
+                      <span class="p-key">File Name: </span>
+                      <span class="p-value">{{foundFile.fileName}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.fileSize}}
+                    <div>
+                      <span class="p-key">File Size: </span>
+                      <span class="p-value">{{foundFile.fileSize}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.filePath}}
+                    <div>
+                      <span class="p-key">File Path: </span>
+                      <span class="p-value">{{foundFile.filePath}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.filePublisher}}
+                    <div>
+                      <span class="p-key">File Publisher: </span>
+                      <span class="p-value">{{foundFile.filePublisher}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.sha1}}
+                    <div>
+                      <span class="p-key">SHA1: </span>
+                      <span class="p-value">{{foundFile.sha1}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.sha256}}
+                    <div>
+                      <span class="p-key">SHA256: </span>
+                      <span class="p-value">{{foundFile.sha256}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.signer}}
+                    <div>
+                      <span class="p-key">Signer: </span>
+                      <span class="p-value">{{foundFile.signer}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.issuer}}
+                    <div>
+                      <span class="p-key">Issuer: </span>
+                      <span class="p-value">{{foundFile.issuer}}</span>
+                    </div>
+                  {{/if}}
+                {{/if}}
+                {{#if foundFile.imageFile}}
+                  {{#if foundFile.imageFile.fileName}}
+                    <div>
+                      <span class="p-key">File Name: </span>
+                      <span class="p-value">{{foundFile.imageFile.fileName}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.fileSize}}
+                    <div>
+                      <span class="p-key">File Size: </span>
+                      <span class="p-value">{{foundFile.imageFile.fileSize}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.filePath}}
+                    <div>
+                      <span class="p-key">File Path: </span>
+                      <span class="p-value">{{foundFile.imageFile.filePath}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.filePublisher}}
+                    <div>
+                      <span class="p-key">File Publisher: </span>
+                      <span class="p-value">{{foundFile.imageFile.filePublisher}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.sha1}}
+                    <div>
+                      <span class="p-key">SHA1: </span>
+                      <span class="p-value">{{foundFile.imageFile.sha1}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.sha256}}
+                    <div>
+                      <span class="p-key">SHA256: </span>
+                      <span class="p-value">{{foundFile.imageFile.sha256}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.signer}}
+                    <div>
+                      <span class="p-key">Signer: </span>
+                      <span class="p-value">{{foundFile.imageFile.signer}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.imageFile.issuer}}
+                    <div>
+                      <span class="p-key">Issuer: </span>
+                      <span class="p-value">{{foundFile.imageFile.issuer}}</span>
+                    </div>
+                  {{/if}}
+                {{/if}}
+                {{#if foundFile.parentProcessImageFile}}
+                  {{#if foundFile.parentProcessImageFile.fileName}}
+                    <div>
+                      <span class="p-key">File Name: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.fileName}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.fileSize}}
+                    <div>
+                      <span class="p-key">File Size: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.fileSize}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.filePath}}
+                    <div>
+                      <span class="p-key">File Path: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.filePath}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.filePublisher}}
+                    <div>
+                      <span class="p-key">File Publisher: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.filePublisher}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.sha1}}
+                    <div>
+                      <span class="p-key">SHA1: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.sha1}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.sha256}}
+                    <div>
+                      <span class="p-key">SHA256: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.sha256}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.signer}}
+                    <div>
+                      <span class="p-key">Signer: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.signer}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.parentProcessImageFile.issuer}}
+                    <div>
+                      <span class="p-key">Issuer: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.parentProcessImageFile.issuer}}</span>
+                    </div>
+                  {{/if}}
+                {{/if}}
+                {{#if foundFile.riskScore}}
+                  <div>
+                    <span class="p-key">Risk Score: </span>
+                    <span class="p-value">{{titleize foundFile.riskScore}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.detectionStatus}}
+                  <div>
+                    <span class="p-key">Detection Status: </span>
+                    <span class="p-value">{{titleize foundFile.detectionStatus}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.healthStatus}}
+                  <div>
+                    <span class="p-key">Health Status: </span>
+                    <span class="p-value">{{titleize foundFile.healthStatus}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.remediationStatus}}
+                  <div>
+                    <span class="p-key">Remediation Status: </span>
+                    <span class="p-value">{{titleize foundFile.remediationStatus}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.remediationStatusDetails}}
+                  <div>
+                    <span class="p-key">Remediation Status Details: </span>
+                    <span class="p-value">{{titleize
+                        foundFile.remediationStatusDetails
+                      }}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.vmMetadata}}
+                  {{#if foundFile.vmMetadata.cloudProvider}}
+                    <div>
+                      <span class="p-key">Cloud Provider: </span>
+                      <span class="p-value">{{foundFile.vmMetadata.cloudProvider}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.vmMetadata.resourceId}}
+                    <div>
+                      <span class="p-key">Resource Id: </span>
+                      <span class="p-value">{{foundFile.vmMetadata.resourceId}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.vmMetadata.vmId}}
+                    <div>
+                      <span class="p-key">VM ID: </span>
+                      <span class="p-value">{{foundFile.vmMetadata.vmId}}</span>
+                    </div>
+                  {{/if}}
+                {{/if}}
+                {{#if foundFile.userAccount}}
+                  {{#if foundFile.userAccount.accountName}}
+                    <div>
+                      <span class="p-key">Account Name: </span>
+                      <span class="p-value">{{foundFile.userAccount.accountName}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.userAccount.domainName}}
+                    <div>
+                      <span class="p-key">Domain Name: </span>
+                      <span class="p-value">{{foundFile.userAccount.domainName}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.userAccount.userSid}}
+                    <div>
+                      <span class="p-key">User SID: </span>
+                      <span class="p-value">{{foundFile.userAccount.userSid}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.userAccount.azureAdUserId}}
+                    <div>
+                      <span class="p-key">Azure Ad User Id: </span>
+                      <span class="p-value">{{foundFile.userAccount.azureAdUserId}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if foundFile.userAccount.userPrincipalName}}
+                    <div>
+                      <span class="p-key">User Principal Name: </span>
+                      <span
+                        class="p-value"
+                      >{{foundFile.userAccount.userPrincipalName}}</span>
+                    </div>
+                  {{/if}}
+                {{/if}}
+                {{#if foundFile.version}}
+                  <div>
+                    <span class="p-key">Version: </span>
+                    <span class="p-value">{{foundFile.version}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.deviceDnsName}}
+                  <div>
+                    <span class="p-key">Device DNS Name: </span>
+                    <span class="p-value">{{foundFile.deviceDnsName}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.osPlatform}}
+                  <div>
+                    <span class="p-key">OS Platform: </span>
+                    <span class="p-value">{{foundFile.osPlatform}}
+                      {{if foundFile.osBuild (concat "(" foundFile.osBuild ")")}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.rbacGroupName}}
+                  <div>
+                    <span class="p-key">RBAC Group Name: </span>
+                    <span class="p-value">{{foundFile.rbacGroupName}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.onboardingStatus}}
+                  <div>
+                    <span class="p-key">Onboarding Status: </span>
+                    <span class="p-value">{{titleize foundFile.onboardingStatus}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.defenderAvStatus}}
+                  <div>
+                    <span class="p-key">Defender AV Status: </span>
+                    <span class="p-value">{{titleize foundFile.defenderAvStatus}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.processId}}
+                  <div>
+                    <span class="p-key">Process Id: </span>
+                    <span class="p-value">{{foundFile.processId}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.parentProcessId}}
+                  <div>
+                    <span class="p-key">Parent Process Id: </span>
+                    <span class="p-value">{{foundFile.parentProcessId}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.processCommandLine}}
+                  <div>
+                    <span class="p-key">Process Command Line: </span>
+                    <span class="p-value">{{foundFile.processCommandLine}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.firstSeenDateTime}}
+                  <div>
+                    <span class="p-key">First Seen Date Time: </span>
+                    <span class="p-value">{{moment-format
+                        foundFile.firstSeenDateTime
+                        "MM/DD/YYYY HH:mm:ss"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.evidenceCreationTime}}
+                  <div>
+                    <span class="p-key">Created Date Time: </span>
+                    <span class="p-value">{{moment-format
+                        foundFile.evidenceCreationTime
+                        "MM/DD/YYYY HH:mm:ss"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.loggedOnUsers}}
+                  <div>
+                    <span class="p-key">Logged On Users: </span>
+                    <span class="p-value">{{join ", " foundFile.loggedOnUsers}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.roles}}
+                  <div>
+                    <span class="p-key">Roles: </span>
+                    <span class="p-value">{{join ", " foundFile.roles}}</span>
+                  </div>
+                {{/if}}
+                {{#if foundFile.tags}}
+                  <div>
+                    <span class="p-key">Tags: </span>
+                    <span class="p-value">{{join ", " foundFile.tags}}</span>
+                  </div>
+                {{/if}}
+              </div>
+              {{#if (and block.userOptions.enableFileIsolation foundFile.sha1)}}
+                  <div class="mb-3">
+                    <div class="input-container mt-2">
+                      <label class="small ifta-label">
+                        Quarantine Comment
+                      </label>
+                      {{input
+                        type="text"
+                        class="ifta-field"
+                        value=foundFile.quarantineComment
+                        input=(action (mut foundFile.quarantineComment) value="target.value")
+                        disabled=(get (get quarantineFileIsRunning alertIndex) foundFileIndex)
+                      }}
+                    </div>
+                    <div
+                      class="d-flex flex-row justify-content-between align-items-center"
+                    >
+                      <button
+                        {{action "quarantineFile" alertIndex foundFileIndex}}
+                        class="quarantine-file-button"
+                        disabled={{or (get (get quarantineFileIsRunning alertIndex) foundFileIndex) (get (get quarantineFileSuccessMessage alertIndex) foundFileIndex)}}
+                      >
+                        Quarantine File
+                        {{#if (get (get quarantineFileIsRunning alertIndex) foundFileIndex)}}
+                          {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                        {{/if}}
+                      </button>
+                    </div>
+                    {{#if (get (get quarantineFileSuccessMessage alertIndex) foundFileIndex)}}
+                      <div class="alert alert-info mt-1">
+                        {{get (get quarantineFileSuccessMessage alertIndex) foundFileIndex}}
+                      </div>
+                    {{/if}}
+                    {{#if (get (get quarantineFileErrorMessage alertIndex) foundFileIndex)}}
+                      <div class="alert alert-danger mt-1">
+                        {{get (get quarantineFileErrorMessage alertIndex) foundFileIndex}}
+                      </div>
+                    {{/if}}
+                  </div>
+                {{/if}}
+            {{/each}}
+          </div>
+        {{else}}
+          <a
+            href="#"
+            class="expandable-title"
+            {{on "click" (action "toggleExpandableTitle" alertIndex "alertFoundFiles")}}
+          >
+            <span class="text">{{fa-icon
+                icon="file"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Found Files</span>
+            {{fa-icon icon="angle-down"}}
+          </a>
+        {{/if}}
+      {{/if}}
+      {{#if alert.comments.length}}
+        {{#if (get (get expandableTitleStates "alertComments") alertIndex)}}
+          <a
+            href="#"
+            class="expandable-title"
+            {{on "click" (action "toggleExpandableTitle" alertIndex "alertComments")}}
           >
             <span class="text">{{fa-icon
                 icon="comment"
@@ -330,22 +798,33 @@
               Comments</span>
             {{fa-icon icon="angle-up"}}
           </a>
-          <div class="alert-comments">
+          <div class="ml-2 alert-comments">
             {{#each (take 7 alert.comments) as |comment|}}
               <span class="tag link-tag d-inline-flex align-items-center">
-                <span class="text-container summary-source">
-                  {{comment.createdBy}}
-                  ({{moment-format
-                    comment.createdTime
-                    "MM/DD/YYYY HH:mm:ss"
-                    timeZone=timezone
-                  }}): "{{comment.comment}}"
-                </span>
+                {{#if comment.comment}}
+                  <div>
+                    <span class="p-key">Comment: </span>
+                    <span class="p-value">{{comment.comment}}</span>
+                  </div>
+                {{/if}}
+                <div>
+                  <span class="text-container summary-source">
+                    {{comment.createdBy}}
+                    ({{moment-format
+                      comment.createdTime
+                      "MM/DD/YYYY HH:mm:ss"
+                      timeZone=timezone
+                    }}): "{{comment.comment}}"
+                  </span>
+                </div>
               </span>
             {{/each}}
             {{#if (gt alert.comments.length 7)}}
               <div class="remaining-link">
-                <a class="p-link" href={{alert.alertWebUrl}}>
+                <a
+                  class="p-link"
+                  href="https://security.microsoft.com/alerts/{{alert.id}}"
+                >
                   ...View Remaining in Defender
                   {{fa-icon icon="external-link-square" class="external-link-icon"}}
                 </a>
@@ -356,7 +835,7 @@
           <a
             href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" index "alertComments")}}
+            {{on "click" (action "toggleExpandableTitle" alertIndex "alertComments")}}
           >
             <span class="text">{{fa-icon
                 icon="comment"
@@ -369,13 +848,18 @@
         {{/if}}
       {{/if}}
       {{#if alert.recommendedActions}}
-        {{#if (get (get expandableTitleStates "recommendedActions") index)}}
+        {{#if (get (get expandableTitleStates "recommendedActions") alertIndex)}}
           <a
             href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" index "recommendedActions")}}
+            {{on "click" (action "toggleExpandableTitle" alertIndex "recommendedActions")}}
           >
-            <span class="text">{{fa-icon icon="shield-check" class="context-icon" fixedWidth=true}} Recommended Actions</span>
+            <span class="text">{{fa-icon
+                icon="shield-check"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Recommended Actions</span>
             {{fa-icon icon="angle-up"}}
           </a>
           <div class="alert-comments">
@@ -387,81 +871,127 @@
           <a
             href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" index "recommendedActions")}}
+            {{on "click" (action "toggleExpandableTitle" alertIndex "recommendedActions")}}
           >
-            <span class="text">{{fa-icon icon="shield-check" class="context-icon" fixedWidth=true}} Recommended Actions</span>
+            <span class="text">{{fa-icon
+                icon="shield-check"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Recommended Actions</span>
             {{fa-icon icon="angle-down"}}
           </a>
         {{/if}}
       {{/if}}
       {{#if alert.evidence.length}}
-        {{#if (get (get expandableTitleStates "alertEvidence") index)}}
+        {{#if (get (get expandableTitleStates "alertEvidence") alertIndex)}}
           <a
             href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" index "alertEvidence")}}
+            {{on "click" (action "toggleExpandableTitle" alertIndex "alertEvidence")}}
           >
-            <span class="text">{{fa-icon icon="receipt" class="context-icon" fixedWidth=true}} Evidence</span>
+            <span class="text">{{fa-icon
+                icon="receipt"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Evidence</span>
             {{fa-icon icon="angle-up"}}
           </a>
-          <div class="alert-evidences">
+          <div class="ml-2 alert-evidences">
             {{#each (take 5 alert.evidence) as |evidence evidenceIndex|}}
               <div class="alert-evidence">
+                {{#if evidence.entityType}}
+                  <div>
+                    <span class="p-key">Type: </span>
+                    <span class="p-value">{{titleize evidence.entityType}}</span>
+                  </div>
+                {{/if}}
                 {{#if evidence.verdict}}
                   <div>
                     <span class="p-key">Verdict: </span>
                     <span class="p-value">{{titleize evidence.verdict}}</span>
                   </div>
                 {{/if}}
-                {{#if evidence.fileDetails}}
-                  {{#if evidence.fileDetails.fileName}}
-                    <div>
-                      <span class="p-key">File Name: </span>
-                      <span class="p-value">{{evidence.fileDetails.fileName}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.fileSize}}
-                    <div>
-                      <span class="p-key">File Size: </span>
-                      <span class="p-value">{{evidence.fileDetails.fileSize}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.filePath}}
-                    <div>
-                      <span class="p-key">File Path: </span>
-                      <span class="p-value">{{evidence.fileDetails.filePath}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.filePublisher}}
-                    <div>
-                      <span class="p-key">File Publisher: </span>
-                      <span class="p-value">{{evidence.fileDetails.filePublisher}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.sha1}}
-                    <div>
-                      <span class="p-key">SHA1: </span>
-                      <span class="p-value">{{evidence.fileDetails.sha1}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.sha256}}
-                    <div>
-                      <span class="p-key">SHA256: </span>
-                      <span class="p-value">{{evidence.fileDetails.sha256}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.signer}}
-                    <div>
-                      <span class="p-key">Signer: </span>
-                      <span class="p-value">{{evidence.fileDetails.signer}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if evidence.fileDetails.issuer}}
-                    <div>
-                      <span class="p-key">Issuer: </span>
-                      <span class="p-value">{{evidence.fileDetails.issuer}}</span>
-                    </div>
-                  {{/if}}
+
+                {{#if evidence.url}}
+                  <div>
+                    <span class="p-key">URL: </span>
+                    <span class="p-value">{{evidence.url}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.ipAddress}}
+                  <div>
+                    <span class="p-key">IP Address: </span>
+                    <span class="p-value">{{evidence.ipAddress}}</span>
+                  </div>
+                {{/if}}
+
+                {{#if evidence.accountName}}
+                  <div>
+                    <span class="p-key">Account Name: </span>
+                    <span class="p-value">{{evidence.accountName}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.domainName}}
+                  <div>
+                    <span class="p-key">Domain Name: </span>
+                    <span class="p-value">{{evidence.domainName}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.userPrincipalName}}
+                  <div>
+                    <span class="p-value">{{evidence.userPrincipalName}}</span>
+                  </div>
+                {{/if}}
+
+                {{#if evidence.fileName}}
+                  <div>
+                    <span class="p-key">File Name: </span>
+                    <span class="p-value">{{evidence.fileName}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.fileSize}}
+                  <div>
+                    <span class="p-key">File Size: </span>
+                    <span class="p-value">{{evidence.fileSize}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.filePath}}
+                  <div>
+                    <span class="p-key">File Path: </span>
+                    <span class="p-value">{{evidence.filePath}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.filePublisher}}
+                  <div>
+                    <span class="p-key">File Publisher: </span>
+                    <span class="p-value">{{evidence.filePublisher}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.sha1}}
+                  <div>
+                    <span class="p-key">SHA1: </span>
+                    <span class="p-value">{{evidence.sha1}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.sha256}}
+                  <div>
+                    <span class="p-key">SHA256: </span>
+                    <span class="p-value">{{evidence.sha256}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.signer}}
+                  <div>
+                    <span class="p-key">Signer: </span>
+                    <span class="p-value">{{evidence.signer}}</span>
+                  </div>
+                {{/if}}
+                {{#if evidence.issuer}}
+                  <div>
+                    <span class="p-key">Issuer: </span>
+                    <span class="p-value">{{evidence.issuer}}</span>
+                  </div>
                 {{/if}}
                 {{#if evidence.imageFile}}
                   {{#if evidence.imageFile.fileName}}
@@ -681,7 +1211,7 @@
                   <div>
                     <span class="p-key">OS Platform: </span>
                     <span class="p-value">{{evidence.osPlatform}}
-                      ({{if evidence.osBuild evidence.osBuild}})</span>
+                      ({{if evidence.osBuild (concat "(" evidence.osBuild ")")}})</span>
                   </div>
                 {{/if}}
                 {{#if evidence.rbacGroupName}}
@@ -724,17 +1254,17 @@
                   <div>
                     <span class="p-key">First Seen Date Time: </span>
                     <span class="p-value">{{moment-format
-                        alert.firstSeenDateTime
+                        evidence.firstSeenDateTime
                         "MM/DD/YYYY HH:mm:ss"
                         timeZone=timezone
                       }}</span>
                   </div>
                 {{/if}}
-                {{#if evidence.createdDateTime}}
+                {{#if evidence.evidenceCreationTime}}
                   <div>
                     <span class="p-key">Created Date Time: </span>
                     <span class="p-value">{{moment-format
-                        alert.createdDateTime
+                        evidence.evidenceCreationTime
                         "MM/DD/YYYY HH:mm:ss"
                         timeZone=timezone
                       }}</span>
@@ -763,7 +1293,10 @@
           </div>
           {{#if (gt alert.evidence.length 5)}}
             <div class="remaining-link">
-              <a class="p-link" href={{alert.alertWebUrl}}>
+              <a
+                class="p-link"
+                href="https://security.microsoft.com/alerts/{{alert.providerAlertId}}"
+              >
                 ...View Remaining in Defender
                 {{fa-icon icon="external-link-square" class="external-link-icon"}}
               </a>
@@ -773,9 +1306,408 @@
           <a
             href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" index "alertEvidence")}}
+            {{on "click" (action "toggleExpandableTitle" alertIndex "alertEvidence")}}
           >
-            <span class="text">{{fa-icon icon="receipt" class="context-icon" fixedWidth=true}} Evidence</span>
+            <span class="text">{{fa-icon
+                icon="receipt"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              Evidence</span>
+            {{fa-icon icon="angle-down"}}
+          </a>
+        {{/if}}
+      {{/if}}
+    </div>
+  {{/each}}
+{{/if}}
+
+{{#if (eq activeTab "devices")}}
+  <br />
+  {{#each details.devices as |device index|}}
+    <div class="device-content">
+      {{#if device.computerDnsName}}
+        <h1 class="p-title">
+          {{fa-icon icon="tv" class="context-icon" fixedWidth=true}}
+          {{uppercase device.computerDnsName}}
+        </h1>
+      {{/if}}
+      {{#if device.id}}
+        <div class="link-container">
+          <a
+            class="p-link"
+            href="https://security.microsoft.com/machines/v2/{{device.id}}/overview"
+          >
+            View Device in Defender
+            {{fa-icon icon="external-link-square" class="external-link-icon"}}
+          </a>
+        </div>
+      {{/if}}
+
+      {{#if block.userOptions.enableMachinesIsolation}}
+        <div class="mb-2">
+          {{#if checkIfDevicesIsolationIsPendingIsRunning}}
+            {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+          {{else if device.deviceIsPending}}
+            <div
+              class="device-isolation-status d-flex flex-row justify-content-start align-items-center"
+            >
+              <span>
+                Device Is Pending
+                {{#if (eq device.isPendingIsolation true)}}
+                  Isolation
+                {{else}}
+                  Release from Isolation
+                {{/if}}
+              </span>
+              <button
+                {{action "checkIfDevicesIsolationIsPending" true index}}
+                class="change-isolation-button refresh"
+                disabled={{checkIfDevicesIsolationIsPendingIsRunning}}
+              >
+                Refresh
+                {{#if (get showRefreshCheckmark index)}}
+                  {{fa-icon icon="check" fixedWidth=true}}
+                {{/if}}
+                {{#if checkIfDevicesIsolationIsPendingIsRunning}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            <div class="input-container">
+              <label class="small ifta-label">
+                Cancellation Comment
+              </label>
+              {{input
+                type="text"
+                class="ifta-field"
+                input=(action (mut device.statusChangeComment) value="target.value")
+                value=device.statusChangeComment
+                disabled=changeIsolationStatusIsRunning
+              }}
+            </div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <button
+                {{action "changeIsolationStatus" "cancel" index}}
+                class="change-isolation-button"
+                disabled={{changeIsolationStatusIsRunning}}
+              >
+                Cancel
+                {{#if (eq device.isPendingIsolation true)}}
+                  Isolation
+                {{else}}
+                  Release from Isolation
+                {{/if}}
+                {{#if changeIsolationStatusIsRunning}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            {{#if (get changeIsolationStatusErrorMessage index)}}
+              <div class="alert alert-danger mt-1">
+                {{get changeIsolationStatusErrorMessage index}}
+              </div>
+            {{/if}}
+          {{else if (eq device.deviceIsIsolated true)}}
+            <div class="device-isolation-status">Device Is Isolated</div>
+            <div class="input-container mt-2">
+              <label class="small ifta-label">
+                Release Isolation Comment
+              </label>
+              {{input
+                type="text"
+                class="ifta-field"
+                input=(action (mut device.statusChangeComment) value="target.value")
+                value=device.statusChangeComment
+                disabled=changeIsolationStatusIsRunning
+              }}
+            </div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <button
+                {{action "changeIsolationStatus" "releaseFromIsolation" index}}
+                class="change-isolation-button"
+                disabled={{changeIsolationStatusIsRunning}}
+              >
+                Release Device from Isolation
+                {{#if changeIsolationStatusIsRunning}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            {{#if (get changeIsolationStatusErrorMessage index)}}
+              <div class="alert alert-danger mt-1">
+                {{get changeIsolationStatusErrorMessage index}}
+              </div>
+            {{/if}}
+          {{else if (eq device.deviceIsIsolated false)}}
+            <div class="device-isolation-status">Device Is Not Isolated</div>
+            <div class="input-container mt-2">
+              <label class="small ifta-label">
+                Isolation Comment
+              </label>
+              {{input
+                type="text"
+                class="ifta-field"
+                value=device.statusChangeComment
+                input=(action (mut device.statusChangeComment) value="target.value")
+                disabled=changeIsolationStatusIsRunning
+              }}
+            </div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <button
+                {{action "changeIsolationStatus" "isolate" index}}
+                class="change-isolation-button"
+                disabled={{changeIsolationStatusIsRunning}}
+              >
+                Isolate Device
+                {{#if changeIsolationStatusIsRunning}}
+                  {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
+                {{/if}}
+              </button>
+            </div>
+            {{#if (get changeIsolationStatusErrorMessage index)}}
+              <div class="alert alert-danger mt-1">
+                {{get changeIsolationStatusErrorMessage index}}
+              </div>
+            {{/if}}
+          {{/if}}
+        </div>
+      {{/if}}
+
+      {{#if (or (eq device.isExcluded true) (eq device.isExcluded false))}}
+        <div>
+          <span class="p-key">Is Excluded:</span>
+          <span class="p-value">{{device.isExcluded}}</span>
+        </div>
+      {{/if}}
+      {{#if device.exclusionReason}}
+        <div>
+          <span class="p-key">Exclusion Reason:</span>
+          <span class="p-value">{{device.exclusionReason}}</span>
+        </div>
+      {{/if}}
+      {{#if device.lastIpAddress}}
+        <div>
+          <span class="p-key">Last IP Address:</span>
+          <span class="p-value">{{device.lastIpAddress}}</span>
+        </div>
+      {{/if}}
+      {{#if device.lastExternalIpAddress}}
+        <div>
+          <span class="p-key">Last External IP Address: </span>
+          <span class="p-value">{{device.lastExternalIpAddress}}</span>
+        </div>
+      {{/if}}
+      {{#if device.agentVersion}}
+        <div>
+          <span class="p-key">Agent Version: </span>
+          <span class="p-value">{{device.agentVersion}}</span>
+        </div>
+      {{/if}}
+      {{#if device.defenderAvStatus}}
+        <div>
+          <span class="p-key">Defender AV Status: </span>
+          <span class="p-value">{{device.defenderAvStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.managedByStatus}}
+        <div>
+          <span class="p-key">Managed By Status: </span>
+          <span class="p-value">{{device.managedByStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.deviceValue}}
+        <div>
+          <span class="p-key">Device Value: </span>
+          <span class="p-value">{{device.deviceValue}}</span>
+        </div>
+      {{/if}}
+      {{#if device.onboardingStatus}}
+        <div>
+          <span class="p-key">Onboarding Status: </span>
+          <span class="p-value">{{device.onboardingStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.healthStatus}}
+        <div>
+          <span class="p-key">Health Status: </span>
+          <span class="p-value">{{device.healthStatus}}</span>
+        </div>
+      {{/if}}
+      {{#if device.riskScore}}
+        <div>
+          <span class="p-key">Risk Score:</span>
+          <span class="p-value">{{device.riskScore}}</span>
+        </div>
+      {{/if}}
+      {{#if device.exposureLevel}}
+        <div>
+          <span class="p-key">Exposure Level:</span>
+          <span class="p-value">{{device.exposureLevel}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osArchitecture}}
+        <div>
+          <span class="p-key">OS Architecture:</span>
+          <span class="p-value">{{device.osArchitecture}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osVersion}}
+        <div>
+          <span class="p-key">OS Version:</span>
+          <span class="p-value">{{device.osVersion}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osPlatform}}
+        <div>
+          <span class="p-key">OS Platform:</span>
+          <span class="p-value">{{device.osPlatform}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osProcessor}}
+        <div>
+          <span class="p-key">OS Processor:</span>
+          <span class="p-value">{{device.osProcessor}}</span>
+        </div>
+      {{/if}}
+      {{#if device.version}}
+        <div>
+          <span class="p-key">Version:</span>
+          <span class="p-value">{{device.version}}</span>
+        </div>
+      {{/if}}
+      {{#if device.osBuild}}
+        <div>
+          <span class="p-key">OS Build:</span>
+          <span class="p-value">{{device.osBuild}}</span>
+        </div>
+      {{/if}}
+      {{#if device.managedBy}}
+        <div>
+          <span class="p-key">Managed By:</span>
+          <span class="p-value">{{device.managedBy}}</span>
+        </div>
+      {{/if}}
+
+      {{#if
+        (or
+          (eq device.isPotentialDuplication true) (eq device.isPotentialDuplication false)
+        )
+      }}
+        <div>
+          <span class="p-key">Is Potential Duplication:</span>
+          <span class="p-value">{{device.isPotentialDuplication}}</span>
+        </div>
+      {{/if}}
+      {{#if (or (eq device.isAadJoined true) (eq device.isAadJoined false))}}
+        <div>
+          <span class="p-key">Is AAD Joined:</span>
+          <span class="p-value">{{device.isAadJoined}}</span>
+        </div>
+      {{/if}}
+      {{#if (or (eq device.managedBy true) (eq device.managedBy false))}}
+        <div>
+          <span class="p-key">Managed By:</span>
+          <span class="p-value">{{device.managedBy}}</span>
+        </div>
+      {{/if}}
+
+      {{#if device.firstSeen}}
+        <div>
+          <span class="p-key">First Seen: </span>
+          <span class="p-value">{{moment-format
+              device.firstSeen
+              "MM/DD/YYYY HH:mm:ss"
+              timeZone=timezone
+            }}</span>
+        </div>
+      {{/if}}
+      {{#if device.lastSeen}}
+        <div>
+          <span class="p-key">Last Seen: </span>
+          <span class="p-value">{{moment-format
+              device.lastSeen
+              "MM/DD/YYYY HH:mm:ss"
+              timeZone=timezone
+            }}</span>
+        </div>
+      {{/if}}
+
+      {{#if device.machineTags.length}}
+        <div>
+          <span class="p-key">Machine Tags: </span>
+          <span class="p-value">{{join ", " device.machineTags}}</span>
+        </div>
+      {{/if}}
+
+      {{#if device.ipAddresses.length}}
+        {{#if (get (get expandableTitleStates "deviceIpAddress") index)}}
+          <a
+            href="#"
+            class="expandable-title"
+            {{on "click" (action "toggleExpandableTitle" index "deviceIpAddress")}}
+          >
+            <span class="text">{{fa-icon
+                icon="location-arrow"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              IP Addresses</span>
+            {{fa-icon icon="angle-up"}}
+          </a>
+          <div class="ml-2 device-ip-address">
+            {{#each device.ipAddresses as |ipAddress|}}
+              <div class="mb-2 device-ip-address">
+                {{#if ipAddress.ipAddress}}
+                  <div>
+                    <span class="p-key">IP Address: </span>
+                    <span class="p-value">{{ipAddress.ipAddress}}</span>
+                  </div>
+                {{/if}}
+                {{#if ipAddress.macAddress}}
+                  <div>
+                    <span class="p-key">MAC Address: </span>
+                    <span class="p-value">{{ipAddress.macAddress}}</span>
+                  </div>
+                {{/if}}
+                {{#if ipAddress.type}}
+                  <div>
+                    <span class="p-key">Type: </span>
+                    <span class="p-value">{{ipAddress.type}}</span>
+                  </div>
+                {{/if}}
+                {{#if ipAddress.operationalStatus}}
+                  <div>
+                    <span class="p-key">Operational Status: </span>
+                    <span class="p-value">{{ipAddress.operationalStatus}}</span>
+                  </div>
+                {{/if}}
+              </div>
+            {{/each}}
+            {{#if (gt alert.comments.length 7)}}
+              <div class="remaining-link">
+                <a
+                  class="p-link"
+                  href="https://security.microsoft.com/alerts/{{alert.id}}"
+                >
+                  ...View Remaining in Defender
+                  {{fa-icon icon="external-link-square" class="external-link-icon"}}
+                </a>
+              </div>
+            {{/if}}
+          </div>
+        {{else}}
+          <a
+            href="#"
+            class="expandable-title"
+            {{on "click" (action "toggleExpandableTitle" index "deviceIpAddress")}}
+          >
+            <span class="text">{{fa-icon
+                icon="location-arrow"
+                class="context-icon"
+                fixedWidth=true
+              }}
+              IP Addresses</span>
             {{fa-icon icon="angle-down"}}
           </a>
         {{/if}}
@@ -799,26 +1731,97 @@
             <em>{{titleize (humanize (dasherize kustoQueryResult.tableName))}}</em></span>
           {{fa-icon icon="angle-up"}}
         </a>
-        <div class="table-content">
-          {{#each kustoQueryResult.tableRowFields as |displayField|}}
+        <div class="ml-2 table-content">
+          {{#each kustoQueryResult.tableRowFields as |displayField displayFieldIndex|}}
             {{#if
               (or
                 displayField.value (eq displayField.value false) (eq displayField.value 0)
               )
             }}
               <div>
-                <span class="p-key">{{titleize (humanize (dasherize displayField.name))}}: </span>
-                <span class="p-value break-all">
-                  {{#if (eq displayField.type "datetime")}}
+                {{#if (eq displayField.type "datetime")}}
+                  <span class="p-key">{{titleize
+                      (humanize (dasherize displayField.name))
+                    }}:
+                  </span>
+                  <span class="p-value break-all">
                     {{moment-format
                       displayField.value
                       "MM/DD/YYYY HH:mm:ss"
                       timeZone=timezone
                     }}
+                  </span>
+                {{else if (eq displayField.type "array")}}
+                  <span class="p-key">{{titleize
+                      (humanize (dasherize displayField.name))
+                    }}:
+                  </span>
+                  <span class="p-value break-all">
+                    {{join ", " displayField.value}}
+                  </span>
+                {{else if (eq displayField.type "object")}}
+                  {{#if
+                    (get
+                      (get
+                        expandableTitleStates (concat "displayField" displayFieldIndex)
+                      )
+                      index
+                    )
+                  }}
+                    <a
+                      href="#"
+                      class="expandable-title"
+                      {{on
+                        "click"
+                        (action
+                          "toggleExpandableTitle"
+                          index
+                          (concat "displayField" displayFieldIndex)
+                        )
+                      }}
+                    >
+                      <span class="text">{{titleize
+                          (humanize (dasherize displayField.name))
+                        }}</span>
+                      {{fa-icon icon="angle-up"}}
+                    </a>
+                    <div class="ml-2">
+                      {{#each-in displayField.value as |key value|}}
+                        <div>
+                          <span class="p-key">{{titleize (humanize (dasherize key))}}:
+                          </span>
+                          <span class="p-value break-all">{{value}}</span>
+                        </div>
+                      {{/each-in}}
+                    </div>
                   {{else}}
-                    {{displayField.value}}
+                    <a
+                      href="#"
+                      class="expandable-title"
+                      {{on
+                        "click"
+                        (action
+                          "toggleExpandableTitle"
+                          index
+                          (concat "displayField" displayFieldIndex)
+                        )
+                      }}
+                    >
+                      <span class="text">{{titleize
+                          (humanize (dasherize displayField.name))
+                        }}</span>
+                      {{fa-icon icon="angle-down"}}
+                    </a>
                   {{/if}}
-                </span>
+                {{else}}
+                  <span class="p-key">{{titleize
+                      (humanize (dasherize displayField.name))
+                    }}:
+                  </span>
+                  <span class="p-value break-all">
+                    {{displayField.value}}
+                  </span>
+                {{/if}}
               </div>
             {{else if (eq displayField.type "endOfRow")}}
               <hr />

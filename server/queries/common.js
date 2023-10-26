@@ -1,4 +1,15 @@
-const { reduce, get, map } = require('lodash/fp');
+const {
+  reduce,
+  get,
+  map,
+  groupBy,
+  values,
+  flatMap,
+  concat,
+  flow,
+  uniqBy,
+  compact
+} = require('lodash/fp');
 const { DateTime } = require('luxon');
 const MAX_PAGE_SIZE = 30;
 
@@ -59,4 +70,44 @@ const getLookbackDaysFilter = (lookbackDaysOptionKey, fieldField, options) =>
     .minus({ days: get(lookbackDaysOptionKey, options) })
     .toFormat('yyyy-LL-dd')}`;
 
-module.exports = { MAX_PAGE_SIZE, createFiltersFromUserOptions };
+const createSingleEntityResults = (resultsWithMultipleEntities) =>
+  flow(
+    flatMap(({ entity: entities, result }) =>
+      map((entity) => ({ entity, result }), entities)
+    ),
+    groupBy('entity.value'),
+    values,
+    map((resultsGroup) =>
+      reduce(
+        (agg, { entity, result }) => ({
+          entity,
+          result: compact(agg.result.concat(result))
+        }),
+        { result: [] },
+        resultsGroup
+      )
+    )
+  )(resultsWithMultipleEntities);
+
+const createUniqRequestsWithMultipleEntities = (requests) =>
+  flow(
+    groupBy('route'),
+    values,
+    map((requestsGroup) =>
+      reduce(
+        (agg, request) => ({
+          ...request,
+          entity: flow(get('entity'), concat(request.entity), uniqBy('value'))(agg)
+        }),
+        { entity: [] },
+        requestsGroup
+      )
+    )
+  )(requests);
+
+module.exports = {
+  MAX_PAGE_SIZE,
+  createFiltersFromUserOptions,
+  createSingleEntityResults,
+  createUniqRequestsWithMultipleEntities
+};

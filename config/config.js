@@ -2,7 +2,7 @@ module.exports = {
   name: 'Microsoft Defender',
   acronym: 'MS-DEF',
   description:
-    'Search for Alerts and Incidents by Emails, along with the ability to run Advanced Threat Hunting Kusto Queries',
+    'Search for Alerts, Incidents, & Devices, along with the ability to run Advanced Threat Hunting Kusto Queries',
   entityTypes: ['*'],
   defaultColor: 'light-blue',
   styles: ['./client/styles.less'],
@@ -19,7 +19,7 @@ module.exports = {
     key: '',
     passphrase: '',
     ca: '',
-    proxy: ""
+    proxy: ''
   },
   logging: {
     level: 'info' //trace, debug, info, warn, error, fatal
@@ -87,6 +87,26 @@ module.exports = {
       adminOnly: false
     },
     {
+      key: 'enableFileIsolation',
+      name: 'Enable File Isolation',
+      description:
+        "Enable File Isolation for Files found in Alerts. This option must be set to \"Users can view only\"",
+      default: false,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: false
+    },
+    {
+      key: 'enableMachinesIsolation',
+      name: 'Enable Device Isolation',
+      description:
+        "Enable Device Isolation for found Device. This option must be set to \"Users can view only\"",
+      default: false,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: false
+    },
+    {
       key: 'ignoreClassifications',
       name: 'Ignore Classifications',
       description:
@@ -139,7 +159,8 @@ module.exports = {
     {
       key: 'createdLookbackDays',
       name: 'Created On Lookback Days',
-      description: 'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
+      description:
+        'The number of days from today which Incidents or Alerts results will be returned based on when it was Created.',
       default: 60,
       type: 'number',
       userCanEdit: false,
