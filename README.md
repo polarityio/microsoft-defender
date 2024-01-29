@@ -10,8 +10,7 @@ You can also optionally enable Device Isolation and File Quarantine for Device a
 
 To learn more about Microsoft 365 Defender, visit the [official website](https://learn.microsoft.com/en-us/microsoft-365/security/defender/microsoft-365-defender?view=o365-worldwide).
 
-> ***NOTE:*** The `app permissions` required on your `App Registration` which you obtain your `Client/Application ID`, `Tenant/Directory ID`, & `Client Secret` User Options from need to be `SecurityIncident.Read.All`, `ThreatHunting.Read.All`, `User.Read`, & `Machine.ReadWrite.All`.
-> If you are using Device Isolation you'll need to add the API Permissions `Machine.Isolate`, and for File Quarantine you'll need to add `Machine.StopAndQuarantine`.
+> ***NOTE:*** Instructions on how to setup your Azure Instance and User Options for the integration are found below in the [Microsoft 365 Defender Azure Integration Setup](#microsoft-365-defender-azure-integration-setup) section below.
 
 
 ## Microsoft Defender Integration Options
@@ -88,6 +87,118 @@ Comma delimited list of Service Sources that if found in Incidents or Alerts wil
 ### Created On Lookback Days
 The number of days from today which Incidents or Alerts results will be returned based on when it was Created.
 
+## Microsoft 365 Defender Azure Integration Setup
+### _Create App Registration_
+**1**. Navigate to App Registrations
+    <div style="margin-bottom: 10px;">
+      <img alt="Navigate to App Registrations on Azure" src="./assets/nav-to-app-reg.png">
+    </div>
+
+**2**. Select `New registration`
+    <div style="margin-bottom: 10px;">
+      <img width="450px" alt="Select `New registration`" src="./assets/select-new-reg.png">
+    </div>
+
+**3**. Add a memorable name for the new registration then click `Register`
+    <div style="margin-bottom: 10px;">
+      <img width="450px" alt="Memorable Name & Click `Register`" src="./assets/mem-name-click-register.png">
+    </div>
+
+### _Setup API Permissions_
+#### _Our end goal for this section is to have all of these permissions granted with Admin Consent.  More Detailed steps are listed below._
+
+<div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+  <img width="700px" src="./assets/admin-consent-granted.png">
+</div>
+
+> **_NOTE:_** The permissions `Machine.Isolate` & `Machine.StopAndQuarantine` are optional, and only need to be added if you wish to `Enable Device Isolation` or `Enable File Isolation` in the Polarity User Options for the integration.
+
+**4**. In your newly created app registration, navigate to `API permissions` in the left hand menu, then click `Add a permission` for each of the permissions listed below
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/click-add-permission.png">
+    </div>
+
+**5**. Click `Microsoft Graph`
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/click-microsoft-graph.png">
+    </div>
+Under `Application permissions`
+- Search for `SecurityIncident` and select `SecurityIncident.Read.All` then click `Add permissions` 
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/select-security-incident-permission.png">
+    </div>
+- Search for `SecurityAlert` and select `SecurityAlert.Read.All` then click `Add permissions` 
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/select-security-alert-permission.png">
+    </div>
+- Search for `ThreatHunting` and select `ThreatHunting.Read.All` then click `Add permissions`
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/select-threat-hunting-permission.png">
+    </div>
+
+**6**. Under `APIs my organization uses` search for and click `WindowsDefenderATP`
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/click-windows-defender-atp-permission.png">
+    </div>
+Under `Application permissions`
+- Search for `Alert` and select `Alert.ReadWrite.All` then click `Add permissions` 
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/select-alert-permission.png">
+    </div>
+- Search for `Machine` and select `Machine.ReadWrite.All` then click `Add permissions` 
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/select-machine-permission.png">
+    </div>
+- If you want to Quarantine Files using the integration, then Search for `Machine` and select `Machine.StopAndQuarantine` then click `Add permissions`, and when working on the `Add User Options to Integration` section below make sure turn on and save the `Enable File Isolation` user option in Polarity.
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="63%" src="./assets/select-stop-and-quarantine-permission.png">
+      <img width="36%" src="./assets/enable-file-isolation.png">
+    </div>
+- If you want to Isolate Devices using the integration, then Search for `Machine` and select `Machine.Isolate` then click `Add permissions`, and when working on the `Add User Options to Integration` section below make sure turn on and save the `Enable Device Isolation` user option in Polarity.
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="63%" src="./assets/select-machine-isolation-permission.png">
+      <img width="36%" src="./assets/enable-device-isolation.png">
+    </div>
+
+**7**. Click `Grant admin consent for <tenant name>`
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/grant-admin-consent.png">
+    </div>
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="700px" src="./assets/admin-consent-granted.png">
+    </div>
+
+**8**. Wait a few minutes for the permissions to propagate before moving on to add your User Options to the Integration.
+
+### _Add User Options to Integration_
+**9**. Navigate to the `Overview` tab in the left hand menu, then copy the `Application (client) ID` & `Directory (tenant) ID` to the relevant Polarity User Options
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="63%" alt="Copy Client & Tenant IDs" src="./assets/copy-client-and-tenant-ids.png">
+      <img width="35%" alt="Paste Client & Tenant IDs to User Options" src="./assets/paste-client-and-tenant-ids.png">
+    </div>
+
+**10**. Click the `Add certificate or secret` link
+    <div style="margin-bottom: 10px;">
+      <img alt="Add certificate or secret" src="./assets/add-cert-or-secret-link.png">
+    </div>
+
+**11**. Click `New client secret` 
+    <div style="margin-bottom: 10px;">
+      <img width="450px" alt="New client secret" src="./assets/new-client-secret.png">
+    </div>
+
+**12**. Add your desired secret key description then click `Add`
+    <div style="margin-bottom: 10px;">
+      <img width="450px" alt="Secret Description & Add" src="./assets/secret-desc-and-add.png">
+    </div>
+
+**13**. Copy your new client secret `Value` (_Not ID_) to the relevant Polarity User Option
+    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <img width="63%" alt="Copy Secret Value" src="./assets/copy-secret-value.png">
+      <img width="36%" alt="Paste Secret Value to User Options" src="./assets/paste-secret-value.png">
+    </div>
+
+**13**. Make sure to Click `Save Configuration Changes` for your Polarity User Options.  It may take a few seconds for the options to save.
 
 ## Installation Instructions
 
