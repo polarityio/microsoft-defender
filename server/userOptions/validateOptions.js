@@ -4,10 +4,12 @@ const { getLogger } = require('../logging');
 const { getIncidents } = require('../queries');
 const { requestWithDefaults } = require('../request');
 const parseUserOptions = require('./parseUserOptions');
-const { validateStringOptions, flattenOptions } = require('./utils');
+const { validateStringOptions, flattenOptions, validateUrlOption } = require('./utils');
 
 const validateOptions = async (options, callback) => {
   const stringOptionsErrorMessages = {
+    graphApiUrl: '* Required',
+    microsoft365ApiUrl: '* Required',
     clientId: '* Required',
     tenantId: '* Required',
     clientSecret: '* Required'
@@ -18,13 +20,19 @@ const validateOptions = async (options, callback) => {
     options
   );
 
+  const urlOptionsErrors = validateUrlOption(options, 'graphApiUrl').concat(
+    validateUrlOption(options, 'microsoft365ApiUrl')
+  );
+
   const parsedOptions = flow(flattenOptions, parseUserOptions)(options);
 
   const authenticationError = !size(stringValidationErrors)
     ? await validateAuthentication(parsedOptions)
     : [];
 
-  let errors = stringValidationErrors.concat(authenticationError);
+  let errors = stringValidationErrors
+    .concat(urlOptionsErrors)
+    .concat(authenticationError);
 
   const filterOptionErrors = !size(errors)
     ? flatten(

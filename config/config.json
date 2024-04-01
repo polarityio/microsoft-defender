@@ -14,6 +14,24 @@
   "logging": { "level": "info" },
   "options": [
     {
+      "key": "graphApiUrl",
+      "name": "Microsoft Graph API URL",
+      "description": "The Microsoft Graph API URL associated with your Azure Microsoft 365 Defender Instance.",
+      "default": "https://graph.microsoft.com",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "microsoft365ApiUrl",
+      "name": "Microsoft 365 Defender API URL",
+      "description": "The Microsoft 365 Defender API URL associated with your Azure Microsoft 365 Defender Instance.",
+      "default": "https://api.securitycenter.microsoft.com",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
       "key": "clientId",
       "name": "Azure AD Registered App Client/Application ID",
       "description": "Your Azure AD Registered App's Client ID associated with your Microsoft 365 Defender Instance.",

@@ -7,18 +7,20 @@ const tokenCache = new NodeCache({
   stdTTL: 30 * 60
 });
 
-const microsoftGraphApiUrl = 'https://graph.microsoft.com/';
-const microsoft365DefenderUrl = 'https://api.securitycenter.microsoft.com/';
-const requestUrlsBySite = {
-  graph: `${microsoftGraphApiUrl}v1.0/security/`,
-  defender: `${microsoft365DefenderUrl}api/`
-};
-const scopesBySite = {
-  graph: `${microsoftGraphApiUrl}.default`,
-  defender: `${microsoft365DefenderUrl}.default`
-};
+
+let scopesBySite;
 
 const authenticateRequest = async ({ site, route, options, ...requestOptions }) => {
+  const requestUrlsBySite = {
+    graph: `${options.graphApiUrl}v1.0/security/`,
+    defender: `${options.microsoft365ApiUrl}api/`
+  };
+
+  scopesBySite = {
+    graph: `${options.graphApiUrl}.default`,
+    defender: `${options.microsoft365ApiUrl}.default`
+  };
+
   const accessToken = await getToken(options, site);
 
   return {
