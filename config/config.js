@@ -26,6 +26,26 @@ module.exports = {
   },
   options: [
     {
+      key: 'graphApiUrl',
+      name: 'Microsoft Graph API URL',
+      description:
+        'The Microsoft Graph API URL associated with your Azure Microsoft 365 Defender Instance.',
+      default: 'https://graph.microsoft.com',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'microsoft365ApiUrl',
+      name: 'Microsoft 365 Defender API URL',
+      description:
+        'The Microsoft 365 Defender API URL associated with your Azure Microsoft 365 Defender Instance.',
+      default: 'https://api.securitycenter.microsoft.com',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
       key: 'clientId',
       name: 'Azure AD Registered App Client/Application ID',
       description:
@@ -90,7 +110,7 @@ module.exports = {
       key: 'enableFileIsolation',
       name: 'Enable File Isolation',
       description:
-        "Enable File Isolation for Files found in Alerts. This option must be set to \"Users can view only\"",
+        'Enable File Isolation for Files found in Alerts. This option must be set to "Users can view only"',
       default: false,
       type: 'boolean',
       userCanEdit: false,
@@ -100,7 +120,7 @@ module.exports = {
       key: 'enableMachinesIsolation',
       name: 'Enable Device Isolation',
       description:
-        "Enable Device Isolation for found Device. This option must be set to \"Users can view only\"",
+        'Enable Device Isolation for found Device. This option must be set to "Users can view only"',
       default: false,
       type: 'boolean',
       userCanEdit: false,
