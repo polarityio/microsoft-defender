@@ -17,8 +17,8 @@ const authenticateRequest = async ({ site, route, options, ...requestOptions }) 
   };
 
   scopesBySite = {
-    graph: `${options.graphApiUrl}.default`,
-    defender: `${options.microsoft365ApiUrl}.default`
+    graph: `${options.graphApiUrl}/.default`,
+    defender: `${options.microsoft365ApiUrl}/.default`
   };
 
   const accessToken = await getToken(options, site);
