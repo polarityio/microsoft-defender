@@ -4,7 +4,6 @@
       <a
         {{action "changeTab" "incidents"}}
         class="nav-link {{if (eq activeTab 'incidents') 'active'}}"
-        href="#"
       >
         {{get displayTabNames "incidents"}}
       </a>
@@ -15,7 +14,6 @@
       <a
         {{action "changeTab" "alerts"}}
         class="nav-link {{if (eq activeTab 'alerts') 'active'}}"
-        href="#"
       >
         {{get displayTabNames "alerts"}}
       </a>
@@ -26,7 +24,6 @@
       <a
         {{action "changeTab" "devices"}}
         class="nav-link {{if (eq activeTab 'devices') 'active'}}"
-        href="#"
       >
         {{get displayTabNames "devices"}}
         {{#if checkIfDevicesIsolationIsPendingIsRunning}}
@@ -40,7 +37,6 @@
       <a
         {{action "changeTab" "kustoQueryResults"}}
         class="nav-link {{if (eq activeTab 'kustoQueryResults') 'active'}}"
-        href="#"
       >
         {{get displayTabNames "kustoQueryResults"}}
       </a>
@@ -132,7 +128,6 @@
       {{#if incident.comments.length}}
         {{#if (get (get expandableTitleStates "incidentComments") index)}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "incidentComments")}}
           >
@@ -168,7 +163,6 @@
           </div>
         {{else}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "incidentComments")}}
           >
@@ -358,7 +352,6 @@
       {{#if alert.foundFiles.length}}
         {{#if (get (get expandableTitleStates "alertFoundFiles") alertIndex)}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" alertIndex "alertFoundFiles")}}
           >
@@ -726,50 +719,58 @@
                 {{/if}}
               </div>
               {{#if (and block.userOptions.enableFileIsolation foundFile.sha1)}}
-                  <div class="mb-3">
-                    <div class="input-container mt-2">
-                      <label class="small ifta-label">
-                        Quarantine Comment
-                      </label>
-                      {{input
-                        type="text"
-                        class="ifta-field"
-                        value=foundFile.quarantineComment
-                        input=(action (mut foundFile.quarantineComment) value="target.value")
-                        disabled=(get (get quarantineFileIsRunning alertIndex) foundFileIndex)
-                      }}
-                    </div>
-                    <div
-                      class="d-flex flex-row justify-content-between align-items-center"
-                    >
-                      <button
-                        {{action "quarantineFile" alertIndex foundFileIndex}}
-                        class="quarantine-file-button"
-                        disabled={{or (get (get quarantineFileIsRunning alertIndex) foundFileIndex) (get (get quarantineFileSuccessMessage alertIndex) foundFileIndex)}}
-                      >
-                        Quarantine File
-                        {{#if (get (get quarantineFileIsRunning alertIndex) foundFileIndex)}}
-                          {{fa-icon "spinner-third" fixedWidth=true spin=true}}
-                        {{/if}}
-                      </button>
-                    </div>
-                    {{#if (get (get quarantineFileSuccessMessage alertIndex) foundFileIndex)}}
-                      <div class="alert alert-info mt-1">
-                        {{get (get quarantineFileSuccessMessage alertIndex) foundFileIndex}}
-                      </div>
-                    {{/if}}
-                    {{#if (get (get quarantineFileErrorMessage alertIndex) foundFileIndex)}}
-                      <div class="alert alert-danger mt-1">
-                        {{get (get quarantineFileErrorMessage alertIndex) foundFileIndex}}
-                      </div>
-                    {{/if}}
+                <div class="mb-3">
+                  <div class="input-container mt-2">
+                    <label class="small ifta-label">
+                      Quarantine Comment
+                    </label>
+                    {{input
+                      type="text"
+                      class="ifta-field"
+                      value=foundFile.quarantineComment
+                      input=(action
+                        (mut foundFile.quarantineComment) value="target.value"
+                      )
+                      disabled=(get
+                        (get quarantineFileIsRunning alertIndex) foundFileIndex
+                      )
+                    }}
                   </div>
-                {{/if}}
+                  <div class="d-flex flex-row justify-content-between align-items-center">
+                    <button
+                      {{action "quarantineFile" alertIndex foundFileIndex}}
+                      class="quarantine-file-button"
+                      disabled={{or
+                        (get (get quarantineFileIsRunning alertIndex) foundFileIndex)
+                        (get (get quarantineFileSuccessMessage alertIndex) foundFileIndex)
+                      }}
+                    >
+                      Quarantine File
+                      {{#if
+                        (get (get quarantineFileIsRunning alertIndex) foundFileIndex)
+                      }}
+                        {{fa-icon "spinner-third" fixedWidth=true spin=true}}
+                      {{/if}}
+                    </button>
+                  </div>
+                  {{#if
+                    (get (get quarantineFileSuccessMessage alertIndex) foundFileIndex)
+                  }}
+                    <div class="alert alert-info mt-1">
+                      {{get (get quarantineFileSuccessMessage alertIndex) foundFileIndex}}
+                    </div>
+                  {{/if}}
+                  {{#if (get (get quarantineFileErrorMessage alertIndex) foundFileIndex)}}
+                    <div class="alert alert-danger mt-1">
+                      {{get (get quarantineFileErrorMessage alertIndex) foundFileIndex}}
+                    </div>
+                  {{/if}}
+                </div>
+              {{/if}}
             {{/each}}
           </div>
         {{else}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" alertIndex "alertFoundFiles")}}
           >
@@ -786,7 +787,6 @@
       {{#if alert.comments.length}}
         {{#if (get (get expandableTitleStates "alertComments") alertIndex)}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" alertIndex "alertComments")}}
           >
@@ -833,7 +833,6 @@
           </div>
         {{else}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" alertIndex "alertComments")}}
           >
@@ -850,9 +849,11 @@
       {{#if alert.recommendedActions}}
         {{#if (get (get expandableTitleStates "recommendedActions") alertIndex)}}
           <a
-            href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" alertIndex "recommendedActions")}}
+            {{on
+              "click"
+              (action "toggleExpandableTitle" alertIndex "recommendedActions")
+            }}
           >
             <span class="text">{{fa-icon
                 icon="shield-check"
@@ -869,9 +870,11 @@
           </div>
         {{else}}
           <a
-            href="#"
             class="expandable-title"
-            {{on "click" (action "toggleExpandableTitle" alertIndex "recommendedActions")}}
+            {{on
+              "click"
+              (action "toggleExpandableTitle" alertIndex "recommendedActions")
+            }}
           >
             <span class="text">{{fa-icon
                 icon="shield-check"
@@ -886,7 +889,6 @@
       {{#if alert.evidence.length}}
         {{#if (get (get expandableTitleStates "alertEvidence") alertIndex)}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" alertIndex "alertEvidence")}}
           >
@@ -1304,7 +1306,6 @@
           {{/if}}
         {{else}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" alertIndex "alertEvidence")}}
           >
@@ -1643,7 +1644,6 @@
       {{#if device.ipAddresses.length}}
         {{#if (get (get expandableTitleStates "deviceIpAddress") index)}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "deviceIpAddress")}}
           >
@@ -1698,7 +1698,6 @@
           </div>
         {{else}}
           <a
-            href="#"
             class="expandable-title"
             {{on "click" (action "toggleExpandableTitle" index "deviceIpAddress")}}
           >
@@ -1722,7 +1721,6 @@
     <div>
       {{#if (get (get expandableTitleStates "kustoQueryResults") index)}}
         <a
-          href="#"
           class="expandable-title"
           {{on "click" (action "toggleExpandableTitle" index "kustoQueryResults")}}
         >
@@ -1769,7 +1767,6 @@
                     )
                   }}
                     <a
-                      href="#"
                       class="expandable-title"
                       {{on
                         "click"
@@ -1796,7 +1793,6 @@
                     </div>
                   {{else}}
                     <a
-                      href="#"
                       class="expandable-title"
                       {{on
                         "click"
@@ -1830,7 +1826,6 @@
         </div>
       {{else}}
         <a
-          href="#"
           class="expandable-title"
           {{on "click" (action "toggleExpandableTitle" index "kustoQueryResults")}}
         >
