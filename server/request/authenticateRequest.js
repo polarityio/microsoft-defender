@@ -12,8 +12,8 @@ let scopesBySite;
 
 const authenticateRequest = async ({ site, route, options, ...requestOptions }) => {
   const requestUrlsBySite = {
-    graph: `${options.graphApiUrl}v1.0/security/`,
-    defender: `${options.microsoft365ApiUrl}api/`
+    graph: `${options.graphApiUrl}/v1.0/security/`,
+    defender: `${options.microsoft365ApiUrl}/api/`
   };
 
   scopesBySite = {
