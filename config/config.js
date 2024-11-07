@@ -3,7 +3,20 @@ module.exports = {
   acronym: 'MS-DEF',
   description:
     'Search for Alerts, Incidents, & Devices, along with the ability to run Advanced Threat Hunting Kusto Queries',
-  entityTypes: ['*'],
+  entityTypes: [
+    'IPv4',
+    'IPv4CIDR',
+    'IPv6',
+    'domain',
+    'url',
+    'MD5',
+    'SHA1',
+    'SHA256',
+    'email',
+    'cve',
+    'MAC',
+    'string'
+  ],
   defaultColor: 'light-blue',
   styles: ['./client/styles.less'],
   block: {
