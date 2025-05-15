@@ -16,7 +16,10 @@
     "email",
     "cve",
     "MAC",
-    "string"
+    {
+      "type": "string",
+      "enabled": false
+    }
   ],
   "entityTypes": [
     "IPv4",
