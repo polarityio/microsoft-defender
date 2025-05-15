@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Polarity.io, Inc.
+ * Copyright (c) 2025, Polarity.io, Inc.
  */
 
 /**
@@ -11,7 +11,7 @@
  * msal-node implemented their own `networkClient` interface which should support proxies but it does not always
  * work.
  */
-class SharepointHttpAuthClient {
+class MsalNodeHttpAuthClient {
   constructor(requestWithDefaults, Logger) {
     this.requestWithDefaults = requestWithDefaults;
     this.logger = Logger;
@@ -57,4 +57,4 @@ class SharepointHttpAuthClient {
   }
 }
 
-module.exports = SharepointHttpAuthClient;
+module.exports = MsalNodeHttpAuthClient;

@@ -57,7 +57,7 @@ const createRequestWithDefaults = () => {
     return async (requestOptions) => {
       if (!limiter) _setupLimiter(requestOptions.options);
 
-      const preRequestFunctionResults = await preRequestFunction(requestOptions);
+      const preRequestFunctionResults = await preRequestFunction(requestOptions, defaultsRequest);
       const _requestOptions = {
         ...requestOptions,
         ...preRequestFunctionResults
